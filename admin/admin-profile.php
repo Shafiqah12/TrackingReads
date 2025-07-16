@@ -107,7 +107,7 @@ require_once '../includes/header.php';
     <div class="profile-actions">
         <h3>Manage Profile</h3>
         <a href="edit-admin-profile.php" class="btn btn-primary">Edit Profile</a>
-        <a href="change-password.php" class="btn btn-primary">Change Password</a>
+        <a href="change_password.php" class="btn btn-primary">Change Password</a>
     </div>
 
     <p style="margin-top: 30px;">This section allows administrators to view and manage their profile details.</p>

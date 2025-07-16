@@ -36,7 +36,7 @@ if (session_status() === PHP_SESSION_NONE) {
         <!-- NEW EBOOK LIBRARY LINKS START HERE -->
         <?php if (isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true): ?>
             <li><a href="/TrackingReads/index.php">Ebook Library</a></li> <!-- Link to the main library search page -->
-            <li><a href="/TrackingReads/add_ebook.php">Add New Ebook</a></li> <!-- Link to the add ebook form -->
+            <li><a href="/TrackingReads/admin/add_ebook.php">Add New Ebook</a></li>
         <?php endif; ?>
         <!-- NEW EBOOK LIBRARY LINKS END HERE -->
 
@@ -58,25 +58,3 @@ if (session_status() === PHP_SESSION_NONE) {
     </nav>
 </header>
 <main>
-    <!-- JavaScript for hamburger menu toggle -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const hamburgerMenu = document.querySelector('.hamburger-menu');
-            const navLinks = document.querySelector('.nav-links');
-
-            hamburgerMenu.addEventListener('click', function() {
-                navLinks.classList.toggle('active');
-                hamburgerMenu.classList.toggle('active');
-            });
-
-            // Close menu when a link is clicked (for single-page navigation or after navigating)
-            navLinks.querySelectorAll('a').forEach(link => {
-                link.addEventListener('click', () => {
-                    if (navLinks.classList.contains('active')) {
-                        navLinks.classList.remove('active');
-                        hamburgerMenu.classList.remove('active');
-                    }
-                });
-            });
-        });
-    </script>

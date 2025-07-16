@@ -2,13 +2,12 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-session_start(); // Start the session at the very beginning of the script
-require_once 'includes/db_connect.php'; // Include your existing database connection file
+session_start(); // Start the session
+require_once 'includes/db_connect.php'; // Use your existing database connection
 
 // Redirect if not logged in (adjust this logic based on your system's needs)
-// If you want the library to be public, you can remove or modify this block.
 if (empty($_SESSION['loggedin'])) {
-    header("Location: login.php"); // Redirect to your login page if not authenticated
+    header("Location: login.php"); // Redirect to your login page
     exit;
 }
 
@@ -26,9 +25,9 @@ try {
         // Sanitize the search term to prevent SQL injection
         $searchTerm = $conn->real_escape_string(trim($_GET['search']));
 
-        // SQL query to search for ebooks by tajuk (title), penulis (author), or penerbit (publisher)
-        // Using LIKE for partial matches (case-insensitive in MySQL by default for many collations)
-        $sql = "SELECT * FROM ebooks WHERE tajuk LIKE '%$searchTerm%' OR penulis LIKE '%$searchTerm%' OR penerbit LIKE '%$searchTerm%' ORDER BY tajuk ASC";
+        // SQL query to search for ebooks by title, author, or publisher
+        // MODIFIED: ORDER BY id ASC for consistency
+        $sql = "SELECT id, no, penulis, tajuk, muka_surat, perkataan, harga_rm, genre, bulan, tahun, penerbit FROM ebooks WHERE tajuk LIKE '%$searchTerm%' OR penulis LIKE '%$searchTerm%' OR penerbit LIKE '%$searchTerm%' ORDER BY id ASC";
         $result = $conn->query($sql);
 
         if ($result === false) {
@@ -42,9 +41,9 @@ try {
             }
         }
     } else {
-        // Display all ebooks if no search term is provided initially (or after clearing search)
-        // Limiting to 100 for initial display performance; remove LIMIT if you want all by default
-        $sql = "SELECT * FROM ebooks ORDER BY tajuk ASC LIMIT 100";
+        // Display all ebooks if no search term is provided initially
+        // MODIFIED: ORDER BY id ASC for consistency
+        $sql = "SELECT id, no, penulis, tajuk, muka_surat, perkataan, harga_rm, genre, bulan, tahun, penerbit FROM ebooks ORDER BY id ASC LIMIT 100";
         $result = $conn->query($sql);
 
         if ($result === false) {
@@ -62,10 +61,9 @@ try {
 } catch (Exception $e) {
     // Catch database or other general errors
     $errorMessage = "An error occurred: " . htmlspecialchars($e->getMessage());
-    // In a production environment, you would log $e->getTraceAsString() for debugging.
 }
 
-// --- Include your existing header.php for the site's top navigation and common HTML head ---
+// --- Include your existing header ---
 require_once 'includes/header.php';
 ?>
 
@@ -101,17 +99,23 @@ require_once 'includes/header.php';
         echo '<div class="message error">No ebooks found matching "' . htmlspecialchars($searchTerm) . '".</div>';
     } else if (empty($ebooks) && !$searchPerformed) {
         // This message appears if the database is empty and no search was performed
-        echo '<div class="message info">No ebooks in the database. Please import data using <a href="import_excel_to_db.php" class="text-blue-500 hover:underline">import_excel_to_db.php</a>.</div>';
+        echo '<div class="message info">No ebooks in the database. Please import data using <a href="admin/import_excel_to_db.php" class="text-blue-500 hover:underline">import_excel_to_db.php</a>.</div>'; // Corrected path to import script
     } else {
         echo '<div class="ebook-list">'; // Grid container for ebook items
         foreach ($ebooks as $ebook) {
             echo '<div class="ebook-item">'; // Individual ebook card
-            echo '<h3>' . htmlspecialchars($ebook['tajuk']) . '</h3>';
-            echo '<p><strong>Penulis:</strong> ' . htmlspecialchars($ebook['penulis']) . '</p>';
-            echo '<p><strong>Genre:</strong> ' . htmlspecialchars($ebook['genre']) . '</p>';
-            echo '<p><strong>Penerbit:</strong> ' . htmlspecialchars($ebook['penerbit'] ?? 'N/A') . '</p>'; // Display penerbit, with fallback
-            echo '<p><strong>Muka Surat:</strong> ' . htmlspecialchars($ebook['muka_surat']) . '</p>';
-            echo '<p><strong>Harga (RM):</strong> ' . htmlspecialchars(number_format($ebook['harga_rm'], 2)) . '</p>';
+            // MODIFIED: Added ?? '' for string fields, ?? 0 for numeric fields before htmlspecialchars
+            echo '<h3>' . htmlspecialchars($ebook['tajuk'] ?? '') . '</h3>'; // Title
+            echo '<p><strong>NO:</strong> ' . htmlspecialchars($ebook['no'] ?? '') . '</p>'; // NO field
+            echo '<p><strong>Penulis:</strong> ' . htmlspecialchars($ebook['penulis'] ?? '') . '</p>'; // Author
+            echo '<p><strong>Genre:</strong> ' . htmlspecialchars($ebook['genre'] ?? '') . '</p>'; // Genre
+            echo '<p><strong>Penerbit:</strong> ' . htmlspecialchars($ebook['penerbit'] ?? '') . '</p>'; // Publisher
+            echo '<p><strong>Muka Surat:</strong> ' . htmlspecialchars($ebook['muka_surat'] ?? '') . '</p>'; // Pages
+            echo '<p><strong>Perkataan:</strong> ' . htmlspecialchars($ebook['perkataan'] ?? '') . '</p>'; // Words
+            echo '<p><strong>Harga (RM):</strong> ' . htmlspecialchars(number_format($ebook['harga_rm'] ?? 0, 2)) . '</p>'; // Price
+            echo '<p><strong>Bulan:</strong> ' . htmlspecialchars($ebook['bulan'] ?? '') . '</p>'; // Month
+            echo '<p><strong>Tahun:</strong> ' . htmlspecialchars($ebook['tahun'] ?? '') . '</p>'; // Year
+
             // Add more details from your database columns as needed
             echo '</div>'; // End of ebook-item
         }
@@ -125,6 +129,6 @@ require_once 'includes/header.php';
 if (isset($conn) && $conn->ping()) {
     $conn->close();
 }
-// --- Include your existing footer.php for the site's bottom content ---
+// --- Include your existing footer ---
 require_once 'includes/footer.php';
 ?>
