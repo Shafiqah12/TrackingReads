@@ -18,7 +18,7 @@ if (session_status() === PHP_SESSION_NONE) {
 <header>
     <nav>
         <div class="logo">
-            <a href="/TrackingReads/index.php"> <img src="/TrackingReads/img/your-logo.png" alt="Logo" class="header-logo"> TrackingReads
+            <a href="/TrackingReads/index.php">TrackingReads
             </a>
         </div>
 

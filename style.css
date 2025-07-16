@@ -1,18 +1,17 @@
-/* style.css */
-
 /* MODIFIED: Google Fonts for a softer, more modern look */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Quicksand:wght@400;500;600;700&display=swap');
 
-/* Define CSS Variables for easier theme management */
+/* Define CSS Variables for easier theme management - MODIFIED FOR VIBRANT PASTEL LAVENDER */
 :root {
-    --primary-pink: #ff69b4; /* Hot Pink */
-    --secondary-pink: #ff80a6; /* Medium Pink */
-    --light-pink: #ffb3c7; /* Lighter Pink */
-    --pale-pink: #ffccdd; /* Paler Pink */
-    --very-light-pink: #ffeef2; /* Very Light Pink Background */
-    --dark-grey-text: #343a40; /* For general text */
-    --medium-grey-text: #555; /* For labels/secondary text */
-    --light-grey-border: #dee2e6; /* For subtle borders */
+    --header-vibrant-pastel: #A08AD3; /* MODIFIED: Vibrant but still pastel lilac for header */
+    --primary-pastel-lavender: #D4C9EC; /* Soft, light pastel lavender for primary accents */
+    --secondary-pastel-lavender: #B8AEE2; /* Slightly deeper, more saturated pastel lavender for stronger accents and hovers */
+    --text-dark-neutral: #5A526A; /* MODIFIED: Renamed to clarify its role for text, soft deep purplish-grey */
+    --secondary-neutral-warm: #D6C7A7; /* Soft, warm tan/light brown for subtle details */
+    --light-background: #F7F2F9; /* MODIFIED: Very soft, almost white, hint of purple for body background */
+    --card-background: #FFFFFF; /* Pure white for specific card/form backgrounds */
+    --border-light: #E9E3F3; /* Very pale, muted lavender-grey for subtle borders */
+    --danger-pastel-rose: #E3C9CC; /* Soft, muted pastel rose for danger actions (like remove) */
 }
 
 /* Basic Reset and Body Styling */
@@ -27,54 +26,53 @@ html {
 }
 
 body {
-    font-family: 'Poppins', sans-serif; /* MODIFIED: Using Poppins for general text */
+    font-family: 'Poppins', sans-serif;
     margin: 0;
     padding: 0;
-    background-color: var(--very-light-pink); /* MODIFIED: Very light pink background */
-    color: var(--dark-grey-text);
+    background-color: var(--light-background); /* MODIFIED: Soft purple background */
+    color: var(--text-dark-neutral); /* MODIFIED: Soft deep purplish-grey for text */
     line-height: 1.6;
     padding-top: 60px; /* Space for fixed header */
 }
 
 /* Header and Navigation */
 header {
-    background-color: var(--secondary-pink); /* MODIFIED: Medium pink for header */
-    color: #fff;
-    padding: 1rem 0; /* MODIFIED: Increased padding for taller header to fit logo */
-    box-shadow: 0 2px 8px rgba(255, 128, 166, 0.2); /* MODIFIED: Pink shadow */
+    background-color: var(--header-vibrant-pastel); /* MODIFIED: Vibrant pastel lilac for header */
+    color: #fff; /* MODIFIED: White text for header */
+    padding: 1rem 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     position: fixed;
     width: 100%;
     top: 0;
     left: 0;
     z-index: 1000;
-    display: flex; /* Ensure flexbox for alignment */
-    align-items: center; /* Vertically center items */
-    justify-content: space-between; /* MODIFIED: Logo left, nav right */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 nav {
     display: flex;
-    justify-content: space-between; /* This is handled by header's justify-content */
+    justify-content: space-between;
     align-items: center;
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
-    width: 100%; /* Ensure nav takes full width of header's inner content */
+    width: 100%;
 }
 
 .logo a {
     color: #fff;
     text-decoration: none;
-    font-size: 1.8rem; /* This font-size is for text if used, image size is controlled by .header-logo */
+    font-size: 1.8rem;
     font-weight: bold;
-    display: flex; /* Ensure logo and text align if you use an image */
+    display: flex;
     align-items: center;
 }
 
-/* MODIFIED: Header Logo specific styling */
 .header-logo {
-    height: 50px; /* MODIFIED: Big logo for better fit within the expanded header */
-    width: auto; /* Maintain aspect ratio */
+    height: 50px;
+    width: auto;
     vertical-align: middle;
     margin-right: 10px;
 }
@@ -84,20 +82,20 @@ nav {
     margin: 0;
     padding: 0;
     display: none;
-    flex-direction: column; /* Stack vertically for mobile */
-    position: absolute; /* Overlay effect */
-    top: 60px; /* Right below the header */
+    flex-direction: column;
+    position: absolute;
+    top: 60px;
     left: 0;
     width: 100%;
-    background-color: var(--secondary-pink); /* Pink background for mobile menu */
+    background-color: var(--header-vibrant-pastel); /* MODIFIED: Vibrant pastel lilac for mobile menu */
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-    z-index: 990; /* Below fixed header but above main content */
-    overflow-y: auto; /* Enable scrolling for many links */
+    z-index: 990;
+    overflow-y: auto;
     max-height: calc(100vh - 60px);
 }
 
-.nav-links.active { /* Class added by JavaScript */
-    display: flex; /* Show the menu when active */
+.nav-links.active {
+    display: flex;
 }
 
 .nav-links li {
@@ -121,30 +119,30 @@ nav {
 }
 
 .nav-links a:hover {
-    color: var(--pale-pink); /* MODIFIED: Lighter pink on hover */
+    color: var(--primary-pastel-lavender); /* MODIFIED: Primary Pastel Lavender on hover (contrasts nicely with white nav text) */
 }
 
 .nav-links a::after {
     content: none;
     position: absolute;
-    bottom: 0; /* Position at the bottom of the link */
-    left: 50%; /* Start from the middle */
-    transform: translateX(-50%); /* Center the border */
-    width: 0; /* Initially no width */
-    height: 3px; /* Smaller height for the border */
-    background-color: var(--pale-pink); /* Lighter pink for the border */
-    transition: width 0.3s ease; /* Animate the width */
-    border-radius: 5px; /* Slightly rounded ends for the border */
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 3px;
+    background-color: var(--primary-pastel-lavender); /* MODIFIED: Primary Pastel Lavender for border */
+    transition: width 0.3s ease;
+    border-radius: 5px;
 }
 
 .nav-links a:hover::after,
-.nav-links a.active::after { /* Assuming you'll add an 'active' class for current tab */
-    width: 70%; /* Make it 70% width of the link on hover/active */
+.nav-links a.active::after {
+    width: 70%;
 }
 
 /* --- HAMBURGER MENU ICON --- */
 .hamburger-menu {
-    display: flex; /* Show by default on mobile */
+    display: flex;
     flex-direction: column;
     justify-content: space-around;
     width: 30px;
@@ -153,7 +151,7 @@ nav {
     border: none;
     cursor: pointer;
     padding: 0;
-    z-index: 1001; /* Ensure it's on top */
+    z-index: 1001;
 }
 
 .hamburger-menu .line {
@@ -164,7 +162,6 @@ nav {
     transition: all 0.3s ease;
 }
 
-/* Hamburger icon animation when active (requires JS to toggle 'active' class) */
 .hamburger-menu.active .line:nth-child(2) {
     opacity: 0;
 }
@@ -177,76 +174,76 @@ nav {
     transform: translateY(-11px) rotate(-45deg);
 }
 
-/* Main Content Area - This affects dashboard, manage notes etc. */
+/* Main Content Area */
 main {
     max-width: 1200px;
     margin: 20px auto;
     padding: 20px;
-    background: linear-gradient(to bottom, var(--very-light-pink) 0%, var(--light-pink) 100%); /* Subtle gradient background */
-    border-radius: 15px; /* MODIFIED: More rounded corners */
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08); /* MODIFIED: Stronger, softer shadow */
+    background: var(--card-background); /* Pure white background for main content area */
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
 }
 
 /* Authentication Container (Login/Register Forms) */
 .auth-container {
-    background-color: #ffffff; /* MODIFIED: White background */
-    border-radius: 20px; /* MODIFIED: Significantly more rounded corners */
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); /* MODIFIED: Deeper, softer shadow */
-    padding: 50px; /* MODIFIED: More padding */
+    background-color: var(--card-background); /* Pure white background for auth forms */
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    padding: 50px;
     width: 100%;
-    max-width: 450px; /* MODIFIED: Slightly wider max-width */
-    margin: 70px auto; /* MODIFIED: More space from top */
+    max-width: 450px;
+    margin: 70px auto;
     text-align: center;
-    position: relative; /* MODIFIED: Needed for background decorative elements if you add them */
-    overflow: hidden; /* MODIFIED: To contain any potential overflowing decorative elements */
+    position: relative;
+    overflow: hidden;
 }
 
-.auth-container::before { /* MODIFIED: Decorative top-left element */
+.auth-container::before {
     content: '';
     position: absolute;
     top: -20px;
     left: -20px;
     width: 80px;
     height: 80px;
-    background: linear-gradient(45deg, var(--light-pink), var(--secondary-pink)); /* Pink gradient */
+    background: linear-gradient(45deg, var(--primary-pastel-lavender), var(--secondary-pastel-lavender)); /* Pastel Lavender gradient */
     border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
     opacity: 0.7;
     z-index: 0;
 }
 
-.auth-container::after { /* MODIFIED: Decorative bottom-right element */
+.auth-container::after {
     content: '';
     position: absolute;
     bottom: -20px;
     right: -20px;
     width: 100px;
     height: 100px;
-    background: linear-gradient(135deg, var(--pale-pink), var(--light-pink)); /* Lighter pink gradient */
+    background: linear-gradient(135deg, var(--secondary-pastel-lavender), var(--primary-pastel-lavender)); /* Pastel Lavender gradient */
     border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%;
     opacity: 0.6;
     z-index: 0;
 }
 
 .auth-container h2 {
-    font-family: 'Quicksand', sans-serif; /* MODIFIED: A friendly, rounder font for headings */
-    font-size: 2.5em; /* MODIFIED: Larger size */
-    color: var(--primary-pink); /* MODIFIED: Hot pink for headings */
+    font-family: 'Quicksand', sans-serif;
+    font-size: 2.5em;
+    color: var(--text-dark-neutral); /* MODIFIED: Soft deep purplish-grey for headings */
     margin-bottom: 15px;
-    position: relative; /* MODIFIED: To bring text above pseudo-elements */
+    position: relative;
     z-index: 1;
 }
 
 .auth-container p {
-    font-size: 1.1em; /* MODIFIED: Slightly larger paragraph text */
-    color: #666;
-    margin-bottom: 35px; /* MODIFIED: More space below */
+    font-size: 1.1em;
+    color: var(--text-dark-neutral); /* MODIFIED: Soft deep purplish-grey for paragraph */
+    margin-bottom: 35px;
     position: relative;
     z-index: 1;
 }
 
 /* Form Group Styling */
 .form-group {
-    margin-bottom: 25px; /* MODIFIED: More space between groups */
+    margin-bottom: 25px;
     text-align: left;
     width: 100%;
     position: relative;
@@ -255,133 +252,134 @@ main {
 
 .form-group label {
     display: block;
-    margin-bottom: 10px; /* MODIFIED: More space below label */
-    font-weight: 600; /* MODIFIED: Slightly bolder */
-    color: var(--medium-grey-text);
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: var(--text-dark-neutral); /* MODIFIED: Soft deep purplish-grey for label */
 }
 
 .form-control {
-    width: calc(100% - 24px); /* MODIFIED: Adjusted for new padding */
-    padding: 14px 12px; /* MODIFIED: More padding for taller inputs */
-    border: 1px solid var(--pale-pink); /* MODIFIED: Light pink border */
-    border-radius: 10px; /* MODIFIED: More rounded input fields */
-    font-size: 1.05rem; /* MODIFIED: Slightly larger font */
+    width: calc(100% - 24px);
+    padding: 14px 12px;
+    border: 1px solid var(--border-light); /* Very pale lavender-grey border */
+    border-radius: 10px;
+    font-size: 1.05rem;
     box-sizing: border-box;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .form-control:focus {
-    border-color: var(--secondary-pink); /* MODIFIED: Medium pink on focus */
+    border-color: var(--primary-pastel-lavender); /* Primary Pastel Lavender on focus */
     outline: none;
-    box-shadow: 0 0 0 4px rgba(255, 128, 166, 0.2); /* MODIFIED: Pink glow on focus */
+    box-shadow: 0 0 0 4px rgba(212, 201, 236, 0.5); /* Lighter lavender glow on focus */
 }
 
 .form-group.has-error .form-control {
-    border-color: #e74c3c; /* Red for errors */
+    border-color: #dc3545; /* Red for errors */
 }
 
 /* MODIFIED: help-block for forms */
 .help-block {
-    color: #e74c3c; /* Red for error messages */
+    color: #dc3545; /* Red for error messages */
     font-size: 0.9rem;
-    margin-top: 8px; /* MODIFIED: Slightly more margin */
+    margin-top: 8px;
     display: block;
-    text-align: left; /* Ensure it's left-aligned */
+    text-align: left;
 }
 
 /* Buttons (General Styles) */
 .btn {
     display: inline-block;
-    padding: 16px 25px; /* MODIFIED: More padding for larger buttons */
-    font-size: 1.2em; /* MODIFIED: Larger font size */
-    font-weight: 600; /* MODIFIED: Bolder text */
-    border-radius: 12px; /* MODIFIED: More rounded buttons */
+    padding: 16px 25px;
+    font-size: 1.2em;
+    font-weight: 600;
+    border-radius: 12px;
     cursor: pointer;
     text-decoration: none;
     text-align: center;
-    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* MODIFIED: Add box-shadow transition */
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
     box-sizing: border-box;
-    background-image: linear-gradient(45deg, var(--secondary-pink), var(--light-pink)); /* MODIFIED: Default pink gradient */
-    border: none; /* MODIFIED: Remove default border */
-    box-shadow: 0 4px 10px rgba(255, 128, 166, 0.3); /* MODIFIED: Default pink shadow */
+    background-color: var(--primary-pastel-lavender); /* Solid Primary Pastel Lavender */
+    border: none;
+    box-shadow: 0 4px 10px rgba(212, 201, 236, 0.6); /* Lighter lavender shadow */
+    color: var(--text-dark-neutral); /* MODIFIED: Dark text for buttons */
 }
 
 .btn:hover {
-    transform: translateY(-3px); /* MODIFIED: Slightly more lift */
-    box-shadow: 0 6px 15px rgba(255, 128, 166, 0.4); /* MODIFIED: Enhanced shadow on hover */
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(212, 201, 236, 0.7); /* Enhanced shadow on hover */
+    background-color: var(--secondary-pastel-lavender); /* Deeper pastel lavender on hover */
 }
 
 .btn:active {
-    transform: translateY(0); /* Reset on click */
-    box-shadow: 0 2px 5px rgba(255, 128, 166, 0.2); /* Smaller shadow on active */
+    transform: translateY(0);
+    box-shadow: 0 2px 5px rgba(212, 201, 236, 0.4);
 }
 
 .btn-primary {
-    background-color: var(--primary-pink); /* MODIFIED: Hot pink for primary button */
-    color: white;
+    background-color: var(--primary-pastel-lavender); /* Solid Primary Pastel Lavender for primary button */
+    color: var(--text-dark-neutral); /* Dark text for primary buttons */
     border: none;
     width: 100%;
-    margin-top: 30px; /* MODIFIED: More space above */
-    margin-bottom: 25px; /* MODIFIED: More space below */
-    background-image: linear-gradient(to right, var(--primary-pink), var(--secondary-pink)); /* MODIFIED: Pink gradient for primary */
-    box-shadow: 0 6px 15px rgba(255, 105, 180, 0.4); /* MODIFIED: Stronger pink shadow */
+    margin-top: 30px;
+    margin-bottom: 25px;
+    box-shadow: 0 6px 15px rgba(212, 201, 236, 0.7); /* Stronger lavender shadow */
 }
 
 .btn-primary:hover {
-    background-image: linear-gradient(to right, var(--secondary-pink), var(--primary-pink)); /* MODIFIED: Reverse gradient on hover */
-    box-shadow: 0 8px 20px rgba(255, 105, 180, 0.5); /* MODIFIED: Even stronger shadow */
+    background-color: var(--secondary-pastel-lavender); /* Deeper pastel lavender on hover */
+    box-shadow: 0 8px 20px rgba(212, 201, 236, 0.8);
 }
 
 /* MODIFIED: btn-google with !important for forceful override */
 .auth-container .btn-google {
-    background-color: #ffffff !important;
-    color: var(--dark-grey-text) !important; /* MODIFIED: Darker text for better contrast */
-    border: 1px solid var(--pale-pink) !important; /* MODIFIED: Light pink border */
+    background-color: var(--card-background) !important; /* Pure white background */
+    color: var(--text-dark-neutral) !important; /* Dark text for better contrast */
+    border: 1px solid var(--border-light) !important; /* Light cool grey-purple border */
     padding: 15px 20px;
     font-size: 1.1em;
     width: 100%;
-    margin-top: 20px; /* MODIFIED: Adjusted spacing */
+    margin-top: 20px;
     box-sizing: border-box;
-    display: flex; /* MODIFIED: Use flex for icon and text alignment */
+    display: flex;
     align-items: center;
-    justify-content: center; /* MODIFIED: Center content */
-    border-radius: 12px; /* MODIFIED: Match other button radii */
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1); /* Softer shadow */
+    justify-content: center;
+    border-radius: 12px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
 }
 
 .auth-container .btn-google:hover {
-    background-color: #fcfcfc !important; /* MODIFIED: Very subtle change on hover */
-    border-color: var(--light-pink) !important; /* MODIFIED: Slightly darker pink border on hover */
+    background-color: #F8F8F8 !important; /* Very subtle white change on hover */
+    border-color: var(--primary-pastel-lavender) !important; /* Primary Pastel Lavender border on hover */
     transform: translateY(-2px);
-    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15); /* Slightly stronger shadow */
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
 }
 
 .auth-container .btn-google .fab.fa-google {
-    color: #eb4335 !important; /* MODIFIED: Standard Google red for icon */
-    margin-right: 12px; /* MODIFIED: More space */
-    font-size: 1.3em; /* MODIFIED: Slightly larger icon */
+    color: #eb4335 !important; /* Standard Google red for icon */
+    margin-right: 12px;
+    font-size: 1.3em;
 }
 
 /* Links */
 .auth-container p a {
-    color: var(--primary-pink); /* MODIFIED: Hot pink for links */
+    color: var(--primary-pastel-lavender); /* Primary Pastel Lavender for links */
     text-decoration: none;
     font-weight: bold;
 }
 
 .auth-container p a:hover {
     text-decoration: underline;
-    color: var(--secondary-pink); /* MODIFIED: Slightly different pink on hover */
+    color: var(--secondary-pastel-lavender); /* Deeper Pastel Lavender on hover */
 }
 
-/* Success Message (Existing, keeping as is) */
+/* Success Message */
 .success-message {
-    background-color: var(--very-light-pink); /* MODIFIED: Very light pink background */
-    color: var(--primary-pink); /* MODIFIED: Hot pink text */
-    padding: 15px 20px; /* MODIFIED: More padding */
-    border: 1px solid var(--pale-pink); /* MODIFIED: Light pink border */
-    border-radius: 10px; /* MODIFIED: More rounded */
-    margin-bottom: 25px; /* MODIFIED: More margin */
+    background-color: var(--light-background); /* Soft purple background */
+    color: var(--text-dark-neutral); /* Soft deep purplish-grey text */
+    padding: 15px 20px;
+    border: 1px solid var(--border-light); /* Light cool grey-purple border */
+    border-radius: 10px;
+    margin-bottom: 25px;
     text-align: center;
     font-weight: 500;
 }
@@ -389,13 +387,13 @@ main {
 /* Footer */
 footer {
     text-align: center;
-    padding: 25px; /* MODIFIED: More padding */
-    margin-top: 50px; /* MODIFIED: More margin */
-    background-color: var(--secondary-pink); /* MODIFIED: Pink footer */
-    color: #fff;
-    border-top-left-radius: 15px; /* MODIFIED: Rounded top corners */
-    border-top-right-radius: 15px; /* MODIFIED: Rounded top corners */
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08); /* MODIFIED: Softer shadow */
+    padding: 25px;
+    margin-top: 50px;
+    background-color: var(--header-vibrant-pastel); /* MODIFIED: Vibrant pastel lilac for footer (consistent with header) */
+    color: #fff; /* MODIFIED: White text for footer */
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
 }
 
 /* Responsive Design */
@@ -405,24 +403,24 @@ footer {
     }
 
     .nav-links {
-        margin-top: 15px; /* MODIFIED: More space */
+        margin-top: 15px;
         flex-direction: column;
         align-items: center;
     }
 
     .nav-links li {
-        margin: 8px 0; /* MODIFIED: More vertical space */
+        margin: 8px 0;
     }
 
     .auth-container {
-        margin: 50px auto; /* MODIFIED: Adjust margin for smaller screens */
-        padding: 30px; /* MODIFIED: Less padding on smaller screens */
-        border-radius: 15px; /* MODIFIED: Slightly less rounded */
+        margin: 50px auto;
+        padding: 30px;
+        border-radius: 15px;
     }
 
     .auth-container::before,
     .auth-container::after {
-        width: 60px; /* Smaller decorative elements */
+        width: 60px;
         height: 60px;
     }
 }
@@ -432,7 +430,7 @@ footer {
     height: 120px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid var(--light-pink); /* MODIFIED: Pink border */
+    border: 3px solid var(--primary-pastel-lavender); /* Primary Pastel Lavender border */
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     margin-bottom: 15px;
     display: block;
@@ -443,31 +441,32 @@ footer {
 .profile-header {
     margin-bottom: 30px;
     padding-bottom: 20px;
-    border-bottom: 1px solid var(--very-light-pink); /* MODIFIED: Lighter pink separator */
+    border-bottom: 1px solid var(--border-light); /* Very pale lavender-grey separator */
 }
 
 /* Optional: Style the profile details and actions sections */
 .profile-details, .profile-actions {
-    background-color: #fff; /* MODIFIED: White background for cards */
-    border-radius: 15px; /* MODIFIED: More rounded */
-    padding: 25px; /* MODIFIED: More padding */
-    margin-bottom: 25px; /* MODIFIED: More margin */
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08); /* MODIFIED: Softer shadow */
+    background-color: var(--card-background); /* Pure white background for cards */
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
 .profile-details p, .profile-actions a {
-    margin-bottom: 12px; /* MODIFIED: More space */
+    margin-bottom: 12px;
 }
 
 .profile-actions .btn {
-    margin-right: 15px; /* MODIFIED: More space between buttons */
-    margin-bottom: 12px; /* MODIFIED: For stacking on smaller screens */
+    margin-right: 15px;
+    margin-bottom: 12px;
     width: auto;
-    background-image: linear-gradient(45deg, var(--secondary-pink), var(--light-pink)); /* MODIFIED: Apply general btn gradient */
-    box-shadow: 0 4px 10px rgba(255, 128, 166, 0.3);
+    background-color: var(--primary-pastel-lavender); /* Solid Primary Pastel Lavender */
+    box-shadow: 0 4px 10px rgba(212, 201, 236, 0.6);
+    color: var(--text-dark-neutral); /* Dark text for buttons */
 }
 .profile-actions .btn:hover {
-    background-image: linear-gradient(45deg, var(--light-pink), var(--secondary-pink));
+    background-color: var(--secondary-pastel-lavender); /* Deeper pastel lavender on hover */
 }
 
 
@@ -476,8 +475,8 @@ form label {
     text-align: left;
     width: 100%;
     margin-bottom: 10px;
-    font-weight: 600; /* MODIFIED: Bolder */
-    color: var(--medium-grey-text);
+    font-weight: 600;
+    color: var(--text-dark-neutral); /* Soft deep purplish-grey text */
 }
 
 form input[type="text"],
@@ -487,11 +486,11 @@ form input[type="number"],
 form textarea,
 form select {
     width: 100%;
-    padding: 14px 15px; /* MODIFIED: More padding */
-    margin-bottom: 8px; /* MODIFIED: More space */
-    border: 1px solid var(--pale-pink); /* MODIFIED: Light pink border */
-    border-radius: 10px; /* MODIFIED: More rounded */
-    font-size: 1.05em; /* MODIFIED: Slightly larger font */
+    padding: 14px 15px;
+    margin-bottom: 8px;
+    border: 1px solid var(--border-light); /* Very pale lavender-grey border */
+    border-radius: 10px;
+    font-size: 1.05em;
     box-sizing: border-box;
 }
 
@@ -502,14 +501,14 @@ form input[type="email"]:focus,
 form input[type="number"]:focus,
 form textarea:focus,
 form select:focus {
-    border-color: var(--secondary-pink); /* MODIFIED: Medium pink on focus */
+    border-color: var(--primary-pastel-lavender); /* Primary Pastel Lavender on focus */
     outline: none;
-    box-shadow: 0 0 0 4px rgba(255, 128, 166, 0.2); /* MODIFIED: Pink glow on focus */
+    box-shadow: 0 0 0 4px rgba(212, 201, 236, 0.5); /* Lighter lavender glow on focus */
 }
 
 .form-group .help-block {
     color: #dc3545; /* Red */
-    font-size: 0.9em; /* MODIFIED: Consistent font size */
+    font-size: 0.9em;
     margin-top: 5px;
     margin-bottom: 20px;
     text-align: left;
@@ -521,12 +520,12 @@ form select:focus {
 .table-responsive {
     width: 100%;
     overflow-x: auto;
-    margin-top: 30px; /* MODIFIED: More top margin */
-    margin-bottom: 30px; /* MODIFIED: More bottom margin */
-    border-radius: 15px; /* MODIFIED: More rounded corners for the container */
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1); /* MODIFIED: Stronger shadow */
-    background-color: #fff;
-    padding: 20px; /* MODIFIED: More padding */
+    margin-top: 30px;
+    margin-bottom: 30px;
+    border-radius: 15px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    background-color: var(--card-background); /* Pure white background */
+    padding: 20px;
 }
 
 .notes-table,
@@ -534,58 +533,59 @@ form select:focus {
     width: 100%;
     border-collapse: collapse;
     margin: 0;
-    font-size: 0.98em; /* MODIFIED: Slightly larger font */
-    min-width: 750px; /* MODIFIED: Slightly increased min-width */
+    font-size: 0.98em;
+    min-width: 750px;
 }
 
 .notes-table th,
 .user-management-table th,
 .notes-table td,
 .user-management-table td {
-    padding: 15px 18px; /* MODIFIED: More padding inside cells */
+    padding: 15px 18px;
     text-align: left;
-    border-bottom: 1px solid var(--very-light-pink); /* MODIFIED: Very light pink border between rows */
+    border-bottom: 1px solid var(--border-light); /* Very pale lavender-grey border between rows */
 }
 
 .notes-table th,
 .user-management-table th {
-    background-color: var(--secondary-pink); /* MODIFIED: Medium pink for headers */
-    color: #ffffff;
-    font-weight: 600; /* MODIFIED: Slightly less bold */
+    background-color: var(--primary-pastel-lavender); /* Primary Pastel Lavender for headers */
+    color: var(--text-dark-neutral); /* Dark text for headers */
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.08em; /* MODIFIED: More letter spacing */
+    letter-spacing: 0.08em;
     position: sticky;
     top: 0;
     z-index: 1;
     border-radius: 10px 10px 0 0;
-    border-bottom: 3px solid var(--pale-pink); /* Example: Small, pink border for table headers */
-    padding-bottom: 12px; /* Adjust padding to accommodate the border */ /* MODIFIED: Rounded top corners for header */
+    border-bottom: 3px solid var(--secondary-pastel-lavender); /* Deeper Pastel Lavender border for table headers */
+    padding-bottom: 12px;
 }
 
 /* Zebra striping for table rows (both tables) */
 .notes-table tbody tr:nth-child(even),
 .user-management-table tbody tr:nth-child(even) {
-    background-color: #fff7f9; /* MODIFIED: Very light pink for even rows */
+    background-color: #FDFBF8; /* Very light cream/off-white for even rows */
 }
 
 /* Hover effect for rows (both tables) */
 .notes-table tbody tr:hover,
 .user-management-table tbody tr:hover {
-    background-color: var(--very-light-pink); /* MODIFIED: Lighter pink on hover */
+    background-color: var(--light-background); /* Soft purple on hover */
     cursor: pointer;
 }
 
-/* Styling for action buttons inside table cells (for both notes and user tables) */
+/* Styling for action buttons inside table cells */
 .notes-table td .btn,
 .user-management-table td .btn {
-    padding: 8px 12px; /* MODIFIED: Slightly larger padding */
-    font-size: 0.9em; /* MODIFIED: Consistent font size */
-    margin-right: 8px; /* MODIFIED: More space */
-    border-radius: 8px; /* MODIFIED: More rounded */
+    padding: 8px 12px;
+    font-size: 0.9em;
+    margin-right: 8px;
+    border-radius: 8px;
     display: inline-block;
     white-space: nowrap;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Subtle shadow for table buttons */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    color: var(--text-dark-neutral); /* Dark text for table buttons */
 }
 
 .notes-table td .btn:hover,
@@ -595,78 +595,72 @@ form select:focus {
 }
 
 
-/* Specific button styles (ensure they are defined once and consistently) */
-.btn-info { /* Blue for info/edit buttons */
-    background-color: var(--light-pink); /* MODIFIED: Lighter pink for info/edit */
-    color: white;
-    border: none; /* MODIFIED: No border */
-    background-image: linear-gradient(to right, var(--light-pink), var(--pale-pink));
+/* Specific button styles */
+.btn-info {
+    background-color: var(--primary-pastel-lavender); /* Solid Primary Pastel Lavender for info/edit */
+    color: var(--text-dark-neutral); /* Dark text for info buttons */
+    border: none;
 }
 .btn-info:hover {
-    background-color: var(--secondary-pink); /* MODIFIED: Darker pink on hover */
-    background-image: linear-gradient(to right, var(--pale-pink), var(--light-pink));
+    background-color: var(--secondary-pastel-lavender); /* Deeper pastel lavender on hover */
 }
 
-.btn-warning { /* Yellow for warning buttons (e.g., specific edits) */
-    background-color: #ffeb3b; /* MODIFIED: Brighter yellow */
-    color: var(--dark-grey-text); /* Dark text for warning */
-    border: none; /* MODIFIED: No border */
-    background-image: linear-gradient(to right, #ffe066, #ffeb3b);
-    box-shadow: 0 3px 8px rgba(255, 235, 59, 0.3);
+.btn-warning {
+    background-color: var(--secondary-neutral-warm); /* Soft Warm Tan for warning */
+    color: var(--text-dark-neutral); /* Dark text for warning */
+    border: none;
+    box-shadow: 0 3px 8px rgba(214, 199, 167, 0.3);
 }
 .btn-warning:hover {
-    background-color: #fdd835; /* MODIFIED: Darker yellow on hover */
-    background-image: linear-gradient(to right, #ffeb3b, #ffe066);
-    box-shadow: 0 5px 12px rgba(255, 235, 59, 0.4);
+    background-color: #C1B497; /* Darker Soft Warm Tan on hover */
+    box-shadow: 0 5px 12px rgba(214, 199, 167, 0.4);
 }
 
-.btn-danger { /* Red for danger/delete buttons */
-    background-color: var(--primary-pink); /* MODIFIED: Hot pink for danger/delete */
-    color: white;
-    border: none; /* MODIFIED: No border */
-    background-image: linear-gradient(to right, var(--primary-pink), var(--secondary-pink));
+.btn-danger {
+    background-color: var(--danger-pastel-rose); /* Soft, muted pastel rose for danger/delete */
+    color: var(--text-dark-neutral); /* Dark text for danger buttons */
+    border: none;
 }
 .btn-danger:hover {
-    background-color: #dc3545; /* MODIFIED: Standard red for delete to maintain clarity */
-    background-image: none; /* Remove gradient for standard red */
-    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3); /* Red shadow */
+    background-color: #D3B9BC; /* Slightly darker muted pastel rose on hover */
+    box-shadow: 0 4px 8px rgba(227, 201, 204, 0.3);
 }
 
 /* Style for the "No notes found." / "No users found." message */
 .table-responsive + p {
     text-align: center;
-    color: #666;
-    margin-top: 25px; /* MODIFIED: More margin */
-    padding: 15px; /* MODIFIED: More padding */
-    border: 2px dashed var(--pale-pink); /* MODIFIED: Pink dashed border */
-    background-color: #fff7f9; /* MODIFIED: Very light pink background */
-    border-radius: 10px; /* MODIFIED: Rounded corners */
+    color: var(--text-dark-neutral); /* Soft deep purplish-grey */
+    margin-top: 25px;
+    padding: 15px;
+    border: 2px dashed var(--border-light); /* Very pale lavender-grey dashed border */
+    background-color: #FDFBF8; /* Very light cream/off-white background */
+    border-radius: 10px;
 }
 
 /* Optional: Adjust main content padding if table is too wide */
 .main-content-area {
-    padding: 30px; /* MODIFIED: More padding */
+    padding: 30px;
     max-width: 1200px;
     margin: 30px auto;
-    background-color: #ffffff;
-    border-radius: 15px; /* MODIFIED: More rounded */
-    box-shadow: 0 5px 20px rgba(0,0,0,0.08); /* MODIFIED: Stronger shadow */
+    background-color: var(--card-background); /* Pure white background */
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
 }
 
 /* --- Notes Grid and Card Styles --- */
 .notes-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 30px; /* MODIFIED: More space between cards */
-    padding: 25px 0; /* MODIFIED: More padding */
+    gap: 30px;
+    padding: 25px 0;
 }
 
 .note-card {
-    background-color: #ffffff;
-    border: 1px solid var(--very-light-pink); /* MODIFIED: Very light pink border */
-    border-radius: 15px; /* MODIFIED: More rounded */
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1); /* MODIFIED: Stronger, softer shadow */
-    padding: 25px; /* MODIFIED: More padding */
+    background-color: var(--card-background); /* Pure white background */
+    border: 1px solid var(--border-light); /* Very pale lavender-grey border */
+    border-radius: 15px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    padding: 25px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -674,151 +668,186 @@ form select:focus {
 }
 
 .note-card:hover {
-    transform: translateY(-8px); /* MODIFIED: More lift effect on hover */
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); /* MODIFIED: Stronger shadow on hover */
+    transform: translateY(-8px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 
 .note-card h4 {
-    color: var(--primary-pink); /* MODIFIED: Hot pink for note title */
-    font-family: 'Quicksand', sans-serif; /* MODIFIED: Fun font for titles */
-    font-size: 1.6em; /* MODIFIED: Larger font */
+    color: var(--primary-pastel-lavender); /* Primary Pastel Lavender for note title */
+    font-family: 'Quicksand', sans-serif;
+    font-size: 1.6em;
     margin-top: 0;
-    margin-bottom: 12px; /* MODIFIED: More space */
+    margin-bottom: 12px;
 }
 
 .note-card .description {
-    color: #555;
-    font-size: 1em; /* MODIFIED: Slightly larger font */
-    line-height: 1.7; /* MODIFIED: More line height */
-    margin-bottom: 20px; /* MODIFIED: More space */
+    color: var(--text-dark-neutral); /* Soft deep purplish-grey */
+    font-size: 1em;
+    line-height: 1.7;
+    margin-bottom: 20px;
     flex-grow: 1;
 }
 
 .note-card .price {
-    font-size: 1.2em; /* MODIFIED: Larger price font */
+    font-size: 1.2em;
     font-weight: bold;
-    color: #28a745; /* Green for price (can keep or change to pink if desired) */
-    margin-bottom: 20px; /* MODIFIED: More space */
+    color: var(--primary-pastel-lavender); /* Primary Pastel Lavender for price (if applicable) */
+    margin-bottom: 20px;
 }
 
 .note-card .uploaded-info {
-    font-size: 0.9em; /* MODIFIED: Slightly larger font */
-    color: #777;
-    margin-bottom: 20px; /* MODIFIED: More space */
+    font-size: 0.9em;
+    color: var(--secondary-neutral-warm); /* Soft Warm Tan for lighter info text */
+    margin-bottom: 20px;
 }
 
 .note-card .btn-primary {
     align-self: flex-start;
-    padding: 12px 20px; /* MODIFIED: Larger padding */
-    font-size: 1em; /* MODIFIED: Larger font */
+    padding: 12px 20px;
+    font-size: 1em;
     text-decoration: none;
-    background-image: linear-gradient(to right, var(--primary-pink), var(--secondary-pink)); /* MODIFIED: Pink gradient */
-    color: white;
+    background-color: var(--primary-pastel-lavender); /* Solid Primary Pastel Lavender */
+    color: var(--text-dark-neutral); /* Dark text for button */
     border: none;
-    border-radius: 10px; /* MODIFIED: More rounded */
-    box-shadow: 0 4px 10px rgba(255, 105, 180, 0.3); /* MODIFIED: Pink shadow */
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(212, 201, 236, 0.6);
 }
 
-.note-card .btn-primary:hover {
-    background-image: linear-gradient(to right, var(--secondary-pink), var(--primary-pink)); /* MODIFIED: Reverse gradient on hover */
-    box-shadow: 0 6px 15px rgba(255, 105, 180, 0.4);
-}
+/* SAMPAI SINI */
 
 .note-card .no-file {
-    color: #dc3545;
-    font-size: 0.95em; /* MODIFIED: Slightly larger font */
+    color: var(--error-red);
+    /* Keeping red for error clarity */
+    font-size: 0.95em;
+    /* MODIFIED: Slightly larger font */
     font-style: italic;
 }
 
 /* Dashboard Specific Container (Existing, keeping as is) */
 .dashboard-container {
-    background-color: #ffffff; /* MODIFIED: White background */
-    padding: 40px; /* MODIFIED: More padding */
-    border-radius: 15px; /* MODIFIED: More rounded */
-    box-shadow: 0 6px 18px rgba(0,0,0,0.1); /* MODIFIED: Stronger shadow */
+    background-color: #ffffff;
+    /* MODIFIED: White background */
+    padding: 40px;
+    /* MODIFIED: More padding */
+    border-radius: 15px;
+    /* MODIFIED: More rounded */
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    /* MODIFIED: Stronger shadow */
     max-width: 1200px;
-    margin: 40px auto; /* MODIFIED: More margin */
+    margin: 40px auto;
+    /* MODIFIED: More margin */
 }
 
 .dashboard-container h2 {
-    color: var(--primary-pink); /* MODIFIED: Hot pink for dashboard headings */
-    font-family: 'Quicksand', sans-serif; /* MODIFIED: Fun font for headings */
-    font-size: 2.2em; /* MODIFIED: Larger font */
-    margin-bottom: 15px; /* MODIFIED: More space */
+    color: var(--primary-sepia);
+    /* MODIFIED: Deep sepia for dashboard headings */
+    font-family: 'Quicksand', sans-serif;
+    /* MODIFIED: Fun font for headings */
+    font-size: 2.2em;
+    /* MODIFIED: Larger font */
+    margin-bottom: 15px;
+    /* MODIFIED: More space */
 }
 
 .dashboard-container p {
     color: #555;
-    line-height: 1.7; /* MODIFIED: More line height */
-    font-size: 1.05em; /* MODIFIED: Slightly larger font */
+    /* Keeping neutral gray */
+    line-height: 1.7;
+    /* MODIFIED: More line height */
+    font-size: 1.05em;
+    /* MODIFIED: Slightly larger font */
 }
 
 .dashboard-container hr {
     border: 0;
     height: 1px;
-    background: var(--very-light-pink); /* MODIFIED: Light pink line */
-    margin: 30px 0; /* MODIFIED: More space */
+    background: var(--very-light-sepia-bg);
+    /* MODIFIED: Light sepia line */
+    margin: 30px 0;
+    /* MODIFIED: More space */
 }
 
 /* Specific button styles (Existing, adjusted to use variables) */
 .btn-success {
-    background-color: var(--primary-pink); /* MODIFIED: Hot pink for success */
+    background-color: var(--primary-sepia);
+    /* MODIFIED: Deep sepia for success */
     color: white;
-    padding: 12px 20px; /* MODIFIED: Larger padding */
+    padding: 12px 20px;
+    /* MODIFIED: Larger padding */
     border: none;
-    border-radius: 10px; /* MODIFIED: More rounded */
+    border-radius: 10px;
+    /* MODIFIED: More rounded */
     text-decoration: none;
     display: inline-block;
     cursor: pointer;
     transition: background-color 0.2s ease, transform 0.2s ease;
     align-self: flex-start;
-    background-image: linear-gradient(to right, var(--primary-pink), var(--secondary-pink)); /* MODIFIED: Pink gradient */
-    box-shadow: 0 4px 10px rgba(255, 105, 180, 0.3); /* MODIFIED: Pink shadow */
+    background-image: linear-gradient(to right, var(--primary-sepia), var(--secondary-sepia));
+    /* MODIFIED: Sepia gradient */
+    box-shadow: 0 4px 10px rgba(112, 66, 20, 0.3);
+    /* MODIFIED: Sepia shadow */
 }
 
 .btn-success:hover {
-    background-image: linear-gradient(to right, var(--secondary-pink), var(--primary-pink)); /* MODIFIED: Reverse gradient on hover */
-    box-shadow: 0 6px 15px rgba(255, 105, 180, 0.4);
+    background-image: linear-gradient(to right, var(--secondary-sepia), var(--primary-sepia));
+    /* MODIFIED: Reverse gradient on hover */
+    box-shadow: 0 6px 15px rgba(112, 66, 20, 0.4);
+    /* MODIFIED: Sepia shadow */
 }
 
 .purchased-note {
     font-size: 1.1em;
     font-weight: bold;
-    color: var(--primary-pink); /* MODIFIED: Pink for purchased note */
-    padding: 10px 15px; /* MODIFIED: More padding */
-    border-radius: 10px; /* MODIFIED: More rounded */
-    background-color: #fff7f9; /* MODIFIED: Very light pink background */
+    color: var(--primary-sepia);
+    /* MODIFIED: Deep sepia for purchased note */
+    padding: 10px 15px;
+    /* MODIFIED: More padding */
+    border-radius: 10px;
+    /* MODIFIED: More rounded */
+    background-color: #fcfbf8;
+    /* MODIFIED: Very light sepia background */
     align-self: flex-start;
-    border: 1px solid var(--pale-pink); /* MODIFIED: Light pink border */
+    border: 1px solid var(--pale-sepia);
+    /* MODIFIED: Light sepia border */
 }
 
 /* Success Message (Existing, adjusted to use variables) */
 /* Note: This class name conflicts with the new '.message.success'.
-   The new .message.success will be more specific and take precedence.
-   It's generally better to use unique class names or combine them.
-   For now, I've kept both, but the new one will override for elements with both classes. */
+    The new .message.success will be more specific and take precedence.
+    It's generally better to use unique class names or combine them.
+    For now, I've kept both, but the new one will override for elements with both classes. */
 .success-message {
-    background-color: #fff7f9; /* MODIFIED: Very light pink background */
-    color: var(--primary-pink); /* MODIFIED: Hot pink text */
-    padding: 15px 20px; /* MODIFIED: More padding */
-    border: 1px solid var(--pale-pink); /* MODIFIED: Light pink border */
-    border-radius: 10px; /* MODIFIED: More rounded */
-    margin-bottom: 25px; /* MODIFIED: More margin */
+    background-color: #fcfbf8;
+    /* MODIFIED: Very light sepia background */
+    color: var(--primary-sepia);
+    /* MODIFIED: Deep sepia text */
+    padding: 15px 20px;
+    /* MODIFIED: More padding */
+    border: 1px solid var(--pale-sepia);
+    /* MODIFIED: Light sepia border */
+    border-radius: 10px;
+    /* MODIFIED: More rounded */
+    margin-bottom: 25px;
+    /* MODIFIED: More margin */
     text-align: center;
     font-weight: 500;
 }
 
 /* help-block (This was a duplicate. Removed the other conflicting one) */
 .help-block {
-    color: #dc3545; /* Red */
-    font-size: 0.95em; /* MODIFIED: Slightly larger font */
-    margin-top: 8px; /* MODIFIED: More margin */
+    color: var(--error-red);
+    /* Red */
+    font-size: 0.95em;
+    /* MODIFIED: Slightly larger font */
+    margin-top: 8px;
+    /* MODIFIED: More margin */
     margin-bottom: 10px;
 }
 
 
 /* Responsive adjustments for smaller screens (Existing, adjusted where necessary) */
 @media (max-width: 480px) {
+
     /* Existing responsive rules for nav, auth-container etc. */
     nav {
         flex-direction: column;
@@ -836,12 +865,14 @@ form select:focus {
 
     .auth-container {
         margin: 40px auto;
-        padding: 25px; /* MODIFIED: Less padding on smallest screens */
+        padding: 25px;
+        /* MODIFIED: Less padding on smallest screens */
         border-radius: 12px;
     }
 
     .auth-container h2 {
-        font-size: 2em; /* Smaller on very small screens */
+        font-size: 2em;
+        /* Smaller on very small screens */
     }
 
     .auth-container p {
@@ -859,13 +890,15 @@ form select:focus {
     .notes-table td,
     .user-management-table th,
     .user-management-table td {
-        padding: 10px 12px; /* MODIFIED: Less padding on small screens */
+        padding: 10px 12px;
+        /* MODIFIED: Less padding on small screens */
     }
 
     .notes-table th,
     .user-management-table th {
         position: static;
-        border-radius: 10px 10px 0 0; /* Keep top rounded corners */
+        border-radius: 10px 10px 0 0;
+        /* Keep top rounded corners */
     }
 
     .notes-table td .btn,
@@ -873,8 +906,10 @@ form select:focus {
         font-size: 0.8em;
         padding: 6px 10px;
         margin-right: 5px;
-        display: block; /* Stack buttons vertically if they don't fit */
-        margin-bottom: 8px; /* MODIFIED: More space */
+        display: block;
+        /* Stack buttons vertically if they don't fit */
+        margin-bottom: 8px;
+        /* MODIFIED: More space */
         width: auto;
     }
 
@@ -886,16 +921,19 @@ form select:focus {
     /* Notes Grid and Dashboard responsive rules */
     .notes-grid {
         grid-template-columns: 1fr;
-        padding: 20px 10px; /* MODIFIED: Adjusted padding */
+        padding: 20px 10px;
+        /* MODIFIED: Adjusted padding */
     }
 
     .note-card {
-        padding: 20px; /* MODIFIED: Less padding */
+        padding: 20px;
+        /* MODIFIED: Less padding */
         border-radius: 12px;
     }
 
     .dashboard-container {
-        padding: 25px; /* MODIFIED: Less padding */
+        padding: 25px;
+        /* MODIFIED: Less padding */
         margin: 25px auto;
         border-radius: 12px;
     }
@@ -909,132 +947,176 @@ form select:focus {
 
 /* Add this new rule or modify existing .header-logo rule in your style.css */
 .header-logo {
-    height: 50px; /* MODIFIED: Big logo for better fit within the expanded header */
-    width: auto; /* Maintain aspect ratio */
+    height: 50px;
+    /* MODIFIED: Big logo for better fit within the expanded header */
+    width: auto;
+    /* Maintain aspect ratio */
     vertical-align: middle;
     margin-right: 10px;
 }
 
-/* Adjust .logo a if you removed the text from the HTML, otherwise keep previous styles */
-.logo a {
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-    color: #fff;
-    font-size: 1.8rem;
-    font-weight: bold;
-}
-
 /* Existing form control styling (from previous suggestions) */
 .form-control {
-    border-color: var(--pale-pink); /* Light pink border for input fields */
+    border-color: var(--pale-sepia);
+    /* Light sepia border for input fields */
     border-radius: 5px;
     padding: 0.75rem;
-    width: 100%; /* Ensure inputs take full width */
-    box-sizing: border-box; /* Include padding/border in width calculation */
+    width: 100%;
+    /* Ensure inputs take full width */
+    box-sizing: border-box;
+    /* Include padding/border in width calculation */
 }
 
 .form-control:focus {
-    border-color: var(--secondary-pink); /* Medium pink on focus */
-    box-shadow: 0 0 0 0.2rem rgba(255, 128, 166, 0.25); /* Pink shadow on focus */
+    border-color: var(--secondary-sepia);
+    /* Medium sepia on focus */
+    box-shadow: 0 0 0 0.2rem rgba(160, 112, 64, 0.25);
+    /* Sepia shadow on focus */
 }
 
 /* --- THE CRITICAL FILE INPUT STYLING (KEEP ONLY THIS SECTION) --- */
 
 /* Hide the actual file input */
 .form-control-file {
-    display: none !important; /* Force hide the default input */
+    display: none !important;
+    /* Force hide the default input */
 }
 
 /* The wrapper to align the button and text side-by-side */
 .file-input-display-wrapper {
-    display: flex !important; /* Force flexbox behavior */
-    align-items: center !important; /* Force vertical centering */
-    gap: 10px !important; /* Force spacing between elements */
-    margin-bottom: 15px !important; /* Force space below this group before the help text */
-    width: auto !important; /* Allow wrapper to size to its content */
-    flex-wrap: nowrap !important; /* Prevent wrapping, force content on one line */
-    min-width: 0; /* Ensures flex items can shrink below their content size if needed */
+    display: flex !important;
+    /* Force flexbox behavior */
+    align-items: center !important;
+    /* Force vertical centering */
+    gap: 10px !important;
+    /* Force spacing between elements */
+    margin-bottom: 15px !important;
+    /* Force space below this group before the help text */
+    width: auto !important;
+    /* Allow wrapper to size to its content */
+    flex-wrap: nowrap !important;
+    /* Prevent wrapping, force content on one line */
+    min-width: 0;
+    /* Ensures flex items can shrink below their content size if needed */
 }
 
 /* Styles for the "Choose File" button (the custom label) */
 .custom-file-label {
-    display: inline-flex !important; /* Use inline-flex for specific alignment benefits */
-    background-color: var(--secondary-pink) !important; /* Force pink background */
-    color: #fff !important; /* Changed to white text to match theme */
-    padding: 6px 12px !important; /* Force smaller padding */
-    border-radius: 8px !important; /* Force rounded corners */
+    display: inline-flex !important;
+    /* Use inline-flex for specific alignment benefits */
+    background-color: var(--secondary-sepia) !important;
+    /* Force sepia background */
+    color: #fff !important;
+    /* Changed to white text to match theme */
+    padding: 6px 12px !important;
+    /* Force smaller padding */
+    border-radius: 8px !important;
+    /* Force rounded corners */
     cursor: pointer !important;
-    font-size: 0.9rem !important; /* Force smaller font */
+    font-size: 0.9rem !important;
+    /* Force smaller font */
     font-weight: 500 !important;
-    box-shadow: 0 2px 5px rgba(255, 128, 166, 0.2) !important;
-    border: none !important; /* Force no border */
-    flex-shrink: 0 !important; /* Prevent it from shrinking too much */
-    white-space: nowrap !important; /* Keep button text on one line */
-    height: auto !important; /* Ensure height adjusts to content */
-    line-height: normal !important; /* Reset line height if needed */
-    max-width: 150px !important; /* Set a maximum width for the button */
-    box-sizing: border-box !important; /* Ensure padding is included in the width */
+    box-shadow: 0 2px 5px rgba(160, 112, 64, 0.2) !important;
+    /* Sepia shadow */
+    border: none !important;
+    /* Force no border */
+    flex-shrink: 0 !important;
+    /* Prevent it from shrinking too much */
+    white-space: nowrap !important;
+    /* Keep button text on one line */
+    height: auto !important;
+    /* Ensure height adjusts to content */
+    line-height: normal !important;
+    /* Reset line height if needed */
+    max-width: 150px !important;
+    /* Set a maximum width for the button */
+    box-sizing: border-box !important;
+    /* Ensure padding is included in the width */
 }
 
 .custom-file-label:hover {
-    background-color: #e66a90 !important; /* Force darker pink on hover */
-    box-shadow: 0 4px 8px rgba(255, 128, 166, 0.3) !important;
+    background-color: #906030 !important;
+    /* Force darker sepia on hover */
+    box-shadow: 0 4px 8px rgba(160, 112, 64, 0.3) !important;
+    /* Sepia shadow */
 }
 
 /* Style for the text indicating "No file chosen" or selected file name */
 #file-name-display {
-    display: inline-block !important; /* Force inline-block behavior */
-    color: var(--medium-grey-text) !important; /* Force text color */
-    font-size: 0.9rem !important; /* Force smaller font */
-    white-space: nowrap !important; /* Prevent text wrapping */
-    overflow: hidden !important; /* Hide overflowing text */
-    text-overflow: ellipsis !important; /* Add "..." for overflow */
-    flex-grow: 1 !important; /* Allow it to take available space */
-    flex-shrink: 1 !important; /* Allow it to shrink if necessary */
-    min-width: 50px !important; /* Ensure it has a minimum width, adjust if needed */
-    max-width: calc(100% - 160px) !important; /* Adjust max-width based on button width + gap */
-    box-sizing: border-box !important; /* Include padding/border in width calculation */
+    display: inline-block !important;
+    /* Force inline-block behavior */
+    color: var(--medium-text) !important;
+    /* Force text color */
+    font-size: 0.9rem !important;
+    /* Force smaller font */
+    white-space: nowrap !important;
+    /* Prevent text wrapping */
+    overflow: hidden !important;
+    /* Hide overflowing text */
+    text-overflow: ellipsis !important;
+    /* Add "..." for overflow */
+    flex-grow: 1 !important;
+    /* Allow it to take available space */
+    flex-shrink: 1 !important;
+    /* Allow it to shrink if necessary */
+    min-width: 50px !important;
+    /* Ensure it has a minimum width, adjust if needed */
+    max-width: calc(100% - 160px) !important;
+    /* Adjust max-width based on button width + gap */
+    box-sizing: border-box !important;
+    /* Include padding/border in width calculation */
 }
 
 /* For the help text/small text below the input */
 .form-text.text-muted {
     font-size: 0.85rem;
     color: #777 !important;
+    /* Keeping neutral gray */
     margin-top: 5px;
-    display: block; /* Ensure this stays on its own line */
-    width: 100%; /* Take full width */
+    display: block;
+    /* Ensure this stays on its own line */
+    width: 100%;
+    /* Take full width */
 }
 
 /* --- New Styles for My Notes Page Buttons --- */
 .button-group {
-    display: flex; /* Use flexbox to align buttons */
-    gap: 10px; /* Add space between buttons */
-    margin-top: 15px; /* Add some space above the buttons */
-    justify-content: flex-start; /* Align buttons to the start (left) */
-    flex-wrap: wrap; /* Allow buttons to wrap to next line on smaller screens */
+    display: flex;
+    /* Use flexbox to align buttons */
+    gap: 10px;
+    /* Add space between buttons */
+    margin-top: 15px;
+    /* Add some space above the buttons */
+    justify-content: flex-start;
+    /* Align buttons to the start (left) */
+    flex-wrap: wrap;
+    /* Allow buttons to wrap to next line on smaller screens */
 }
 
 .btn-secondary {
-    background-color: #6c757d; /* A common gray for secondary buttons */
+    background-color: var(--primary-pastel-lavender);
+    /* MODIFIED: A muted gray/brown for secondary buttons */
     color: #fff;
     border: none;
     width: 100%;
     transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
     cursor: pointer;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .btn-secondary:hover {
-    background-color: #5a6268;
+    background-color: #8c8c8c;
+    /* MODIFIED: Darker muted gray/brown on hover */
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 /* Adjustments for buttons inside note cards */
 .note-card .btn-primary,
-.note-card .btn-secondary { /* Apply to both primary and secondary buttons in note cards */
-    padding: 12px 20px; /* Keep consistent padding for card buttons */
+.note-card .btn-secondary {
+    /* Apply to both primary and secondary buttons in note cards */
+    padding: 12px 20px;
+    /* Keep consistent padding for card buttons */
     font-size: 1em;
     border-radius: 10px;
     /* Ensure colors and gradients are defined in their respective .btn-primary and .btn-secondary rules */
@@ -1043,14 +1125,19 @@ form select:focus {
 /* Responsive adjustments for buttons in button-group */
 @media (max-width: 480px) {
     .button-group {
-        flex-direction: column; /* Stack buttons vertically on small screens */
-        align-items: center; /* Center them when stacked */
-        gap: 8px; /* Adjust gap for vertical stacking */
+        flex-direction: column;
+        /* Stack buttons vertically on small screens */
+        align-items: center;
+        /* Center them when stacked */
+        gap: 8px;
+        /* Adjust gap for vertical stacking */
     }
 
     .button-group .btn {
-        width: 100%; /* Make stacked buttons take full width */
-        margin-right: 0; /* Remove horizontal margin when stacked */
+        width: 100%;
+        /* Make stacked buttons take full width */
+        margin-right: 0;
+        /* Remove horizontal margin when stacked */
     }
 }
 
@@ -1060,16 +1147,21 @@ form select:focus {
 /* No need to redefine .container as it's already at the top */
 
 /* Headings for the new sections */
-h1, h2 { /* Already defined above, but ensuring consistency */
+h1,
+h2 {
+    /* Already defined above, but ensuring consistency */
     font-family: 'Quicksand', sans-serif;
-    color: var(--primary-pink);
-    border-bottom: 1px solid var(--light-grey-border);
+    color: var(--primary-sepia);
+    /* MODIFIED: Deep sepia for headings */
+    border-bottom: 1px solid var(--light-border);
+    /* MODIFIED: Light gray border */
     padding-bottom: 10px;
     margin-top: 25px;
 }
 
 /* Message boxes for import/search results */
-.message { /* General message style, already defined above */
+.message {
+    /* General message style, already defined above */
     padding: 15px;
     margin-bottom: 20px;
     border-radius: 10px;
@@ -1077,22 +1169,31 @@ h1, h2 { /* Already defined above, but ensuring consistency */
     text-align: center;
 }
 
-.message.success { /* Specific success message */
-    background-color: var(--very-light-pink);
-    color: var(--primary-pink);
-    border: 1px solid var(--pale-pink);
+.message.success {
+    /* Specific success message */
+    background-color: #fcfbf8;
+    /* MODIFIED: Very light sepia background */
+    color: var(--primary-sepia);
+    /* MODIFIED: Deep sepia text */
+    border: 1px solid var(--pale-sepia);
+    /* MODIFIED: Light sepia border */
 }
 
-.message.error { /* Specific error message */
+.message.error {
+    /* Specific error message (keeping strong red for visibility) */
     background-color: #f8d7da;
     color: #721c24;
     border: 1px solid #f5c6cb;
 }
 
-.message.info { /* Specific info message */
-    background-color: #e2f2ff;
-    color: #0056b3;
-    border: 1px solid #b3d9ff;
+.message.info {
+    /* Specific info message (adapting to a soft blue-gray) */
+    background-color: #e6f0f5;
+    /* MODIFIED: Soft blue-gray for info */
+    color: #4a6a7a;
+    /* MODIFIED: Darker blue-gray text */
+    border: 1px solid #c5dbe3;
+    /* MODIFIED: Lighter blue-gray border */
 }
 
 
@@ -1100,37 +1201,44 @@ h1, h2 { /* Already defined above, but ensuring consistency */
 .search-section {
     margin-bottom: 30px;
     padding-bottom: 20px;
-    border-bottom: 1px solid var(--light-grey-border);
+    border-bottom: 1px solid var(--border-light); /* Light pastel-grey border for separator */
 }
 
 .search-section form {
     display: flex;
-    gap: 10px;
+    gap: 10px; /* Space between input and buttons */
     flex-wrap: wrap; /* Allows wrapping on smaller screens */
+    align-items: center; /* Vertically aligns items in the form */
 }
 
 .search-section input[type="text"] {
     flex-grow: 1;
-    padding: 14px 15px; /* Match form-control padding */
-    border: 1px solid var(--pale-pink); /* Match form-control border */
-    border-radius: 10px; /* Match form-control border-radius */
-    font-size: 1.05rem; /* Match form-control font-size */
+    min-width: 200px;
+    padding: 14px 15px;
+    /* MODIFIED: Increased border thickness */
+    border: 5px solid var(--border-light); /* Changed from 1px to 2px */
+    border-radius: 10px;
+    font-size: 1.05rem;
     box-sizing: border-box;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    color: var(--text-dark-neutral);
+    background-color: var(--card-background);
 }
 
 .search-section input[type="text"]:focus {
-    border-color: var(--secondary-pink);
+    border-color: var(--primary-pastel-lavender);
     outline: none;
-    box-shadow: 0 0 0 4px rgba(255, 128, 166, 0.2);
+    /* Optional: You might want to increase the box-shadow spread to match the thicker border if desired */
+    box-shadow: 0 0 0 5px rgba(212, 201, 236, 0.5); /* Changed from 4px to 5px for a slightly larger glow */
 }
 
 .search-section button,
-.search-section a.btn { /* Apply to both button and anchor for consistency */
-    padding: 16px 25px; /* Match .btn padding */
-    font-size: 1.2em; /* Match .btn font-size */
-    font-weight: 600; /* Match .btn font-weight */
-    border-radius: 12px; /* Match .btn border-radius */
+.search-section a.btn {
+    /* General styling for buttons within the search section */
+    padding: 16px 25px;
+    font-size: 1.2em;
+    font-weight: 600;
+    border-radius: 12px;
     cursor: pointer;
     text-decoration: none;
     text-align: center;
@@ -1140,30 +1248,82 @@ h1, h2 { /* Already defined above, but ensuring consistency */
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: none; /* Ensure no default button border */
+    border: none; /* No default button border */
+    /* Common text color for these buttons, overridden by specific button classes if needed */
+    color: var(--text-dark-neutral);
 }
 
 /* Specific button styles for Search and Clear */
-.btn-search { /* Custom class for search button */
-    background-image: linear-gradient(to right, #28a745, #218838); /* Green gradient for search */
-    color: white;
-    box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
+.btn-search {
+    background-color: var(--header-vibrant-pastel); /* Vibrant pastel lilac for search button */
+    color: white; /* White text for vibrant contrast */
+    box-shadow: 0 4px 10px rgba(160, 138, 211, 0.5); /* Shadow consistent with vibrant pastel */
 }
+
 .btn-search:hover {
-    background-image: linear-gradient(to right, #218838, #28a745);
-    box-shadow: 0 6px 15px rgba(40, 167, 69, 0.4);
+    background-color: #8C7BB7; /* Slightly darker vibrant pastel on hover */
+    box-shadow: 0 6px 15px rgba(160, 138, 211, 0.7); /* Enhanced shadow on hover */
+    transform: translateY(-3px); /* Lift effect on hover */
 }
 
-.btn-clear-search { /* Custom class for clear search button */
-    background-image: linear-gradient(to right, #6c757d, #5a6268); /* Gray gradient for clear */
-    color: white;
-    box-shadow: 0 4px 10px rgba(108, 117, 125, 0.3);
+.btn-clear-search {
+    background-color: #E2DFE8; /* Very light, desaturated lavender-grey for clear button */
+    color: var(--text-dark-neutral); /* Dark text for readability on light button */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); /* Soft, subtle shadow */
 }
+
 .btn-clear-search:hover {
-    background-image: linear-gradient(to right, #5a6268, #6c757d);
-    box-shadow: 0 6px 15px rgba(108, 117, 125, 0.4);
+    background-color: #D3CCD8; /* Slightly darker light lavender-grey on hover */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12); /* Enhanced soft shadow on hover */
+    transform: translateY(-3px); /* Lift effect on hover */
 }
 
+/* Optional: Media query for better responsiveness on small screens */
+@media (max-width: 600px) {
+    .search-section form {
+        flex-direction: column; /* Stack input and buttons vertically */
+        gap: 15px; /* Increase gap for stacked elements */
+    }
+
+    .search-section input[type="text"] {
+        width: 100%; /* Make input full width */
+    }
+
+    .search-section button,
+    .search-section a.btn {
+        width: 100%; /* Make buttons full width */
+    }
+}
+
+/* Specific button styles for Search and Clear */
+.btn-search {
+    /* Custom class for search button - now vibrant pastel like the header */
+    background-color: var(--header-vibrant-pastel); /* MODIFIED: Using the vibrant pastel header color */
+    color: white; /* Text color for vibrancy */
+    border-radius: 12px;
+    border-color: burlywood; /* Remove any default border if present */
+    box-shadow: 0 4px 10px rgba(160, 138, 211, 0.5); /* MODIFIED: Shadow consistent with vibrant pastel */
+}
+
+.btn-search:hover {
+    background-color: #8C7BB7; /* MODIFIED: A slightly darker, more saturated version of the header color on hover */
+    box-shadow: 0 6px 15px rgba(160, 138, 211, 0.7); /* MODIFIED: Enhanced shadow on hover */
+    transform: translateY(-3px); /* Retain hover effect */
+}
+
+.btn-clear-search {
+    /* Custom class for clear search button - now soft and pastel */
+    background-color: #E2DFE8; /* MODIFIED: A very light, desaturated lavender-grey, consistent with pastels */
+    color: var(--text-dark-neutral); /* MODIFIED: Dark text for readability on light button */
+    border: none; /* Ensure no border */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); /* MODIFIED: Lighter, soft shadow */
+}
+
+.btn-clear-search:hover {
+    background-color: #D3CCD8; /* MODIFIED: Slightly darker version of the soft lavender-grey on hover */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12); /* MODIFIED: Enhanced soft shadow on hover */
+    transform: translateY(-3px); /* Retain hover effect */
+}
 
 /* Ebook List Display */
 .ebook-list {
@@ -1175,20 +1335,22 @@ h1, h2 { /* Already defined above, but ensuring consistency */
 
 .ebook-item {
     background-color: #ffffff;
-    border: 1px solid var(--very-light-pink);
+    border: 1px solid var(--very-light-sepia-bg);
+    /* MODIFIED: Very light sepia border */
     border-radius: 15px;
     padding: 20px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
 .ebook-item:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
 
 .ebook-item h3 {
-    color: var(--primary-pink);
+    color: var(--primary-sepia);
+    /* MODIFIED: Deep sepia for title */
     font-family: 'Quicksand', sans-serif;
     font-size: 1.4rem;
     margin-top: 0;
@@ -1199,16 +1361,19 @@ h1, h2 { /* Already defined above, but ensuring consistency */
 
 .ebook-item p {
     font-size: 0.9rem;
-    color: var(--dark-grey-text);
+    color: var(--dark-text);
+    /* MODIFIED: Darker sepia text */
     margin-bottom: 5px;
 }
 
 .ebook-item p strong {
-    color: var(--medium-grey-text);
+    color: var(--medium-text);
+    /* MODIFIED: Medium sepia text */
 }
 
 .ebook-item a {
-    color: var(--primary-pink);
+    color: var(--primary-sepia);
+    /* MODIFIED: Deep sepia for links */
     text-decoration: none;
     font-weight: 500;
 }
@@ -1222,18 +1387,114 @@ h1, h2 { /* Already defined above, but ensuring consistency */
     .search-section form {
         flex-direction: column;
     }
+
     .search-section input[type="text"],
     .search-section button,
     .search-section a.btn {
         width: 100%;
     }
+
     .ebook-list {
-        grid-template-columns: 1fr; /* Single column on smaller screens */
+        grid-template-columns: 1fr;
+        /* Single column on smaller screens */
     }
 }
 
 @media (max-width: 480px) {
     .container {
-        padding: 20px; /* Even less padding on very small screens */
+        /* Assuming a .container class wraps your main content */
+        padding: 20px;
+        /* Even less padding on very small screens */
     }
+}
+/* --- New or Modified CSS for Wishlist and Read/Unread UI Elements --- */
+
+/* General Button Adjustments (ensure these are applied where .btn is used) */
+.btn {
+    /* Adjusted padding, font-size, and border-radius for slightly more compact buttons */
+    padding: 12px 20px;
+    font-size: 0.95em;
+    border-radius: 10px; /* Slightly smaller radius */
+    /* Ensure flex properties for icon+text alignment if using icons inside buttons */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px; /* Space between icon and text */
+    white-space: nowrap; /* Prevent text wrapping */
+}
+
+/* Container for grouping action buttons horizontally within a card */
+.card-actions {
+    display: flex;
+    flex-wrap: wrap; /* Allows buttons to wrap on smaller screens */
+    gap: 20px; /* Space between buttons */
+    margin-top: 15px; /* Space above the buttons */
+}
+
+/* Status Indicators (e.g., "In Wishlist ❤️", "Read ✓") */
+.ebook-status {
+    font-size: 0.9em;
+    color: var(--text-dark-neutral); /* Use your primary dark neutral for text */
+    margin-bottom: 5px; /* Small space below status before buttons/next status */
+    display: flex;
+    align-items: center;
+    gap: 5px; /* Space between text and icon */
+    font-style: italic; /* Subtle emphasis for status */
+    opacity: 0.9; /* Slightly muted for background context */
+    font-weight: 500; /* A bit bolder than normal text for emphasis */
+}
+
+.ebook-status i {
+    font-size: 1.1em; /* Adjust icon size relative to text */
+    color: var(--primary-pastel-lavender); /* Make icons subtly stand out */
+}
+
+/* --- Specific Button Styles for Actions --- */
+
+/* Add to Wishlist Button (Primary positive action) */
+.btn-add-wishlist {
+    background-color: var(--primary-pastel-lavender); /* Light pastel lavender */
+    color: var(--text-dark-neutral); /* Dark text on light button */
+    box-shadow: 0 3px 8px rgba(212, 201, 236, 0.4);
+}
+
+.btn-add-wishlist:hover {
+    background-color: var(--secondary-pastel-lavender); /* Slightly deeper pastel lavender on hover */
+    box-shadow: 0 4px 10px rgba(212, 201, 236, 0.6);
+}
+
+/* Remove from Wishlist Button (Negative/Danger action) */
+.btn-remove-wishlist {
+    background-color: var(--danger-pastel-rose); /* Soft, muted pastel rose for removal */
+    color: var(--text-dark-neutral);
+    box-shadow: 0 3px 8px rgba(227, 201, 204, 0.4);
+}
+
+.btn-remove-wishlist:hover {
+    background-color: #D3B9BC; /* Slightly darker pastel rose on hover */
+    box-shadow: 0 4px 10px rgba(227, 201, 204, 0.6);
+}
+
+/* Mark as Read Button (Secondary positive action, completing an item) */
+.btn-mark-read {
+    background-color: var(--secondary-neutral-warm); /* Soft warm tan for "read" */
+    color: var(--text-dark-neutral);
+    box-shadow: 0 3px 8px rgba(214, 199, 167, 0.4);
+}
+
+.btn-mark-read:hover {
+    background-color: #C1B497; /* Darker soft warm tan on hover */
+    box-shadow: 0 4px 10px rgba(214, 199, 167, 0.6);
+}
+
+/* Mark as Unread Button (Neutral/Undo action) */
+.btn-mark-unread {
+    background-color: var(--border-light); /* Very light lavender-grey for "unread" */
+    color: var(--text-dark-neutral);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05); /* Very subtle shadow */
+}
+
+.btn-mark-unread:hover {
+    background-color: #D3CCD8; /* Slightly darker light lavender-grey on hover */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); /* Enhanced subtle shadow */
 }

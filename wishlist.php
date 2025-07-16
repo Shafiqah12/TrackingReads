@@ -12,15 +12,18 @@ $user_id = $_SESSION['user_id'];
 $wishlist_ebooks = [];
 
 if ($conn) {
-    $sql_wishlist = "SELECT e.id, e.tajuk AS title, e.description, e.harga_rm AS price, e.file_path, u.username AS uploaded_by_username, e.created_at, w.added_at
+    // Modified SQL query to fetch details needed for the new display
+    // is_read is still fetched for potential future use or if the user wants a badge,
+    // but the buttons for it will be removed.
+    $sql_wishlist = "SELECT e.id, e.tajuk, e.penulis, e.penerbit, e.harga_rm,
+                            (SELECT COUNT(*) FROM read_status rs WHERE rs.user_id = ? AND rs.ebook_id = e.id) AS is_read
                      FROM ebooks e
-                     JOIN users u ON e.uploaded_by = u.id
                      JOIN wishlist w ON e.id = w.ebook_id
                      WHERE w.user_id = ?
                      ORDER BY w.added_at DESC";
 
     if ($stmt_wishlist = $conn->prepare($sql_wishlist)) {
-        $stmt_wishlist->bind_param("i", $user_id);
+        $stmt_wishlist->bind_param("ii", $user_id, $user_id); // Bind user_id twice
         $stmt_wishlist->execute();
         $result_wishlist = $stmt_wishlist->get_result();
 
@@ -40,41 +43,54 @@ if ($conn) {
 require_once 'includes/header.php';
 ?>
 
-<div class="container wishlist-container">
-    <h2>My Wishlist</h2>
-    <p>These are the ebooks you've added to your wishlist.</p>
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-pink-500 text-3xl font-bold mb-6">My Wishlist</h1>
+    <p class="mb-6 text-gray-700">These are the ebooks you've added to your wishlist.</p>
 
-    <div class="ebooks-grid">
+    <div class="ebook-list grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <?php if (!empty($wishlist_ebooks)): ?>
             <?php foreach ($wishlist_ebooks as $ebook): ?>
-                <div class="ebook-card">
-                    <h4><?php echo htmlspecialchars($ebook['title'] ?? ''); ?></h4>
-                    <p class="description"><?php echo htmlspecialchars($ebook['description'] ?? ''); ?></p>
-                    <p class="price">Price: RM<?php echo htmlspecialchars(number_format($ebook['price'] ?? 0, 2)); ?></p>
-                    <p class="uploaded-info">
-                        Uploaded by: <?php echo htmlspecialchars($ebook['uploaded_by_username'] ?? 'Unknown'); ?> on: <?php echo htmlspecialchars(date("F j, Y, g:i a", strtotime($ebook['created_at'] ?? ''))); ?>
-                    </p>
-                    <p class="wishlist-info">
-                        Added to wishlist on: <?php echo htmlspecialchars(date("F j, Y, g:i a", strtotime($ebook['added_at'] ?? ''))); ?>
-                    </p>
-                    
-                    <?php
-                    // The file path correction variable is no longer strictly needed for download,
-                    // but keeping it if it's used elsewhere (e.g., for showing a preview link later)
-                    $correct_file_path = str_replace('../uploads/', '/TrackingReads/uploads/', $ebook['file_path'] ?? '');
-                    ?>
-                    <div class="button-group">
-                        <a href="/TrackingReads/remove_from_wishlist.php?ebook_id=<?php echo htmlspecialchars($ebook['id']); ?>" class="btn btn-secondary btn-sm">Remove from Wishlist</a>
+                <div class="ebook-item bg-white p-4 rounded-lg shadow-md flex flex-col justify-between">
+                    <div>
+                        <a href="ebook_detail.php?id=<?php echo htmlspecialchars($ebook['id']); ?>" class="ebook-title-link text-lg font-bold text-blue-600 hover:underline">
+                            <h3><?php echo htmlspecialchars($ebook['tajuk'] ?? ''); ?></h3>
+                        </a>
+                        <p class="text-gray-700"><strong>Penulis:</strong> <?php echo htmlspecialchars($ebook['penulis'] ?? ''); ?></p>
+                        <p class="text-gray-700"><strong>Penerbit:</strong> <?php echo htmlspecialchars($ebook['penerbit'] ?? ''); ?></p>
+                        <p class="text-gray-700">Price: RM<?php echo htmlspecialchars(number_format($ebook['harga_rm'] ?? 0, 2)); ?></p>
+                    </div>
+
+                    <div class="ebook-actions mt-3 flex flex-wrap gap-2">
+                        <span class="status-badge wishlist bg-pink-100 text-pink-700 px-2 py-1 rounded-full text-sm flex items-center gap-1">
+                            In Wishlist <i class="fas fa-heart"></i>
+                        </span>
+
+                        <?php
+                        // Optional: If you still want to show 'Read' status as a badge
+                        if ($ebook['is_read']): ?>
+                            <span class="status-badge read bg-green-100 text-green-700 px-2 py-1 rounded-full text-sm flex items-center gap-1">
+                                Read <i class="fas fa-check-circle"></i>
+                            </span>
+                        <?php endif; ?>
+
+                        <a href="/TrackingReads/remove_from_wishlist.php?ebook_id=<?php echo htmlspecialchars($ebook['id']); ?>"
+                           class="btn btn-remove bg-pink-600 text-white px-3 py-1 rounded-md text-sm hover:bg-pink-700">
+                           Remove from Wishlist
+                        </a>
                     </div>
                 </div>
             <?php endforeach; ?>
         <?php else: ?>
-            <p>Your wishlist is empty. Go to your <a href="/TrackingReads/dashboard.php">Dashboard</a> to add some ebooks!</p>
+            <div class="col-span-full message info bg-blue-100 text-blue-700 p-4 rounded-md">
+                <p>Your wishlist is empty. Go to your <a href="index.php" class="text-blue-500 hover:underline">Ebook Library</a> to add some ebooks!</p>
+            </div>
         <?php endif; ?>
     </div>
 </div>
 
 <?php
-$conn->close();
+if (isset($conn) && $conn->ping()) {
+    $conn->close();
+}
 require_once 'includes/footer.php';
 ?>

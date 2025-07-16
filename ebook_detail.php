@@ -42,7 +42,7 @@ if ($ebook_id > 0 && $conn) {
                                (SELECT COUNT(*) FROM wishlist w WHERE w.user_id = ? AND w.ebook_id = e.id) AS is_in_wishlist,
                                (SELECT COUNT(*) FROM read_status rs WHERE rs.user_id = ? AND rs.ebook_id = e.id) AS is_read
                         FROM ebooks e
-                        LEFT JOIN users u ON e.uploaded_by = u.id -- Use LEFT JOIN in case uploaded_by is NULL or user doesn't exist
+                        JOIN users u ON e.uploaded_by = u.id
                         WHERE e.id = ?";
 
     if ($stmt_ebook = $conn->prepare($sql_fetch_ebook)) {
@@ -117,20 +117,20 @@ require_once 'includes/header.php';
 ?>
 
 <div class="container ebook-detail-container">
-    <a href="index.php" class="back-arrow-button" title="Back to Ebook Library"><i class="fas fa-arrow-left"></i></a>
+    <a href="javascript:history.back()" class="back-arrow-button" title="Back to previous page"><i class="fas fa-arrow-left"></i></a>
 
     <?php if ($ebook): ?>
-        <h2><?php echo htmlspecialchars($ebook['title'] ?? ''); ?></h2>
-        <p><strong>NO:</strong> <?php echo htmlspecialchars($ebook['no'] ?? ''); ?></p>
-        <p><strong>Penulis:</strong> <?php echo htmlspecialchars($ebook['penulis'] ?? ''); ?></p>
-        <p><strong>Genre:</strong> <?php echo htmlspecialchars($ebook['genre'] ?? ''); ?></p>
-        <p><strong>Penerbit:</strong> <?php echo htmlspecialchars($ebook['penerbit'] ?? ''); ?></p>
-        <p><strong>Muka Surat:</strong> <?php echo htmlspecialchars($ebook['muka_surat'] ?? ''); ?></p>
-        <p><strong>Perkataan:</strong> <?php echo htmlspecialchars($ebook['perkataan'] ?? ''); ?></p>
-        <p><strong>Harga (RM):</strong> <?php echo htmlspecialchars(number_format($ebook['price'] ?? 0, 2)); ?></p>
-        <p><strong>Bulan:</strong> <?php echo htmlspecialchars($ebook['bulan'] ?? ''); ?></p>
-        <p><strong>Tahun:</strong> <?php echo htmlspecialchars($ebook['tahun'] ?? ''); ?></p>
-        <p><strong>Description:</strong> <?php echo htmlspecialchars($ebook['description'] ?? ''); ?></p>
+        <h2><?php echo htmlspecialchars($ebook['title']); ?></h2>
+        <p><strong>NO:</strong> <?php echo htmlspecialchars($ebook['no']); ?></p>
+        <p><strong>Penulis:</strong> <?php echo htmlspecialchars($ebook['penulis']); ?></p>
+        <p><strong>Genre:</strong> <?php echo htmlspecialchars($ebook['genre']); ?></p>
+        <p><strong>Penerbit:</strong> <?php echo htmlspecialchars($ebook['penerbit']); ?></p>
+        <p><strong>Muka Surat:</strong> <?php echo htmlspecialchars($ebook['muka_surat']); ?></p>
+        <p><strong>Perkataan:</strong> <?php echo htmlspecialchars($ebook['perkataan']); ?></p>
+        <p><strong>Harga (RM):</strong> <?php echo htmlspecialchars(number_format($ebook['price'], 2)); ?></p>
+        <p><strong>Bulan:</strong> <?php echo htmlspecialchars($ebook['bulan']); ?></p>
+        <p><strong>Tahun:</strong> <?php echo htmlspecialchars($ebook['tahun']); ?></p>
+        <p><strong>Description:</strong> <?php echo htmlspecialchars($ebook['description']); ?></p>
         <p class="uploaded-info">
             Uploaded by: <?php echo htmlspecialchars($ebook['uploaded_by_username'] ?? 'Unknown'); ?> on:
             <?php
@@ -157,7 +157,7 @@ require_once 'includes/header.php';
                 <span class="status-badge read">Read <i class="fas fa-check-circle"></i></span>
                 <a href="mark_as_unread.php?ebook_id=<?php echo htmlspecialchars($ebook['id']); ?>" class="btn btn-secondary btn-sm">Mark as Unread</a>
             <?php else: ?>
-                <a href="mark_as_read.php?ebook_id=<?php echo htmlspecialchars($ebook['id']); ?>" class="btn btn-success btn-sm">Mark as Read <i class="far fa-check-circle"></i></a>
+                <a href="mark_as_read.php?ebook_id=<?php echo htmlspecialchars($ebook['id']); ?>" class="btn btn-info btn-sm">Mark as Read <i class="far fa-check-circle"></i></a>
             <?php endif; ?>
         </div>
 
@@ -178,14 +178,14 @@ require_once 'includes/header.php';
                 
                 <div class="form-group mb-3">
                     <label for="rating">Your Rating:</label>
-                    <select name="rating" id="rating" class="form-control" required>
-                        <option value="">Select a rating</option>
-                        <?php for ($i = 1; $i <= 5; $i++): ?>
-                            <option value="<?php echo $i; ?>" <?php echo ($user_review_rating == $i) ? 'selected' : ''; ?>>
-                                <?php echo $i; ?> Star<?php echo ($i > 1) ? 's' : ''; ?>
-                            </option>
-                        <?php endfor; ?>
-                    </select>
+                    <div class="star-rating" data-rating="<?php echo htmlspecialchars($user_review_rating ?? 0); ?>">
+                        <span class="star-rating-star" data-value="1">&#9733;</span>
+                        <span class="star-rating-star" data-value="2">&#9733;</span>
+                        <span class="star-rating-star" data-value="3">&#9733;</span>
+                        <span class="star-rating-star" data-value="4">&#9733;</span>
+                        <span class="star-rating-star" data-value="5">&#9733;</span>
+                    </div>
+                    <input type="hidden" name="rating" id="rating_input" value="<?php echo htmlspecialchars($user_review_rating ?? ''); ?>" required>
                 </div>
 
                 <div class="form-group mb-3">
@@ -234,6 +234,7 @@ require_once 'includes/footer.php';
 
 <style>
     /* Add this to your style.css or a <style> block if you don't have style.css */
+    /* Common Star Styling for reviews list */
     .star {
         color: #ccc; /* Default star color (unfilled) */
         font-size: 1.2em;
@@ -241,6 +242,53 @@ require_once 'includes/footer.php';
     .star.filled {
         color: gold; /* Filled star color */
     }
+
+    /* Star Rating Input Specific Styles (Left-to-Right Fill) */
+    .star-rating {
+        display: inline-block;
+        font-size: 2em; /* Larger stars for input */
+        cursor: pointer;
+        /* Removed direction: rtl; for left-to-right behavior */
+    }
+
+    .star-rating-star {
+        color: #ccc; /* Unfilled star color */
+        display: inline-block;
+        transition: color 0.2s ease-in-out;
+    }
+
+    /* Hover effect: Fill stars from the left up to and including the hovered star */
+    .star-rating-star:hover,
+    .star-rating-star:hover ~ .star-rating-star {
+        color: gold;
+    }
+
+    /* When a star is selected (via JavaScript, data-rating attribute) */
+    .star-rating[data-rating] .star-rating-star {
+        color: #ccc; /* Start by resetting all to unfilled */
+    }
+
+    /* Fill stars up to the 'data-rating' value from left to right */
+    .star-rating[data-rating="1"] .star-rating-star:nth-child(1),
+    .star-rating[data-rating="2"] .star-rating-star:nth-child(1),
+    .star-rating[data-rating="2"] .star-rating-star:nth-child(2),
+    .star-rating[data-rating="3"] .star-rating-star:nth-child(1),
+    .star-rating[data-rating="3"] .star-rating-star:nth-child(2),
+    .star-rating[data-rating="3"] .star-rating-star:nth-child(3),
+    .star-rating[data-rating="4"] .star-rating-star:nth-child(1),
+    .star-rating[data-rating="4"] .star-rating-star:nth-child(2),
+    .star-rating[data-rating="4"] .star-rating-star:nth-child(3),
+    .star-rating[data-rating="4"] .star-rating-star:nth-child(4),
+    .star-rating[data-rating="5"] .star-rating-star:nth-child(1),
+    .star-rating[data-rating="5"] .star-rating-star:nth-child(2),
+    .star-rating[data-rating="5"] .star-rating-star:nth-child(3),
+    .star-rating[data-rating="5"] .star-rating-star:nth-child(4),
+    .star-rating[data-rating="5"] .star-rating-star:nth-child(5) {
+        color: gold;
+    }
+
+
+    /* Message and form control styles (kept from original, adjust as needed) */
     .message {
         padding: 10px;
         margin-bottom: 20px;
@@ -248,7 +296,7 @@ require_once 'includes/footer.php';
     }
     .message.success {
         background-color: #d4edda;
-        color: #155724;
+        color: #A08AD3;
         border: 1px solid #c3e6cb;
     }
     .message.error {
@@ -256,7 +304,6 @@ require_once 'includes/footer.php';
         color: #721c24;
         border: 1px solid #f5c6cb;
     }
-    /* Basic styling for form elements if not already in your CSS */
     .form-group label {
         display: block;
         margin-bottom: 5px;
@@ -267,10 +314,10 @@ require_once 'includes/footer.php';
         padding: 8px;
         border: 1px solid #ccc;
         border-radius: 4px;
-        box-sizing: border-box; /* Ensures padding doesn't increase total width */
+        box-sizing: border-box;
     }
     textarea.form-control {
-        resize: vertical; /* Allow vertical resizing of textarea */
+        resize: vertical;
     }
     .btn {
         padding: 8px 15px;
@@ -281,55 +328,51 @@ require_once 'includes/footer.php';
         text-decoration: none;
         display: inline-block;
         text-align: center;
-        margin-right: 5px; /* For buttons next to each other */
+        margin-right: 5px;
     }
     .btn-primary {
-        background-color: #007bff;
+        background-color: #bfaaebff;
         color: white;
     }
     .btn-primary:hover {
-        background-color: #0056b3;
+        background-color: #b396f3ff;
     }
-    /* Original .btn-secondary, keep if used elsewhere */
     .btn-secondary {
-        background-color: #6c757d;
+        background-color: #B8AEE2;
         color: white;
     }
     .btn-secondary:hover {
-        background-color: #5a6268;
+        background-color: #ad99fbff;
     }
-    /* Original .mb-3 if used elsewhere */
     .mb-3 {
         margin-bottom: 1rem;
     }
 
-    /* CSS for the top-left back arrow button */
     .ebook-detail-container {
-        position: relative; /* This is crucial for positioning children absolutely within it */
-        padding-top: 50px; /* Add padding to make space for the button at the top */
-        /* You might need to adjust other padding/margin on this container */
+        position: relative;
+        padding-top: 50px;
     }
 
     .back-arrow-button {
-        position: absolute; /* Position it relative to the .ebook-detail-container */
-        top: 15px; /* Adjust top padding as needed */
-        left: 15px; /* Adjust left padding as needed */
-        width: 40px; /* Set a fixed width for the circle */
-        height: 40px; /* Set a fixed height for the circle */
-        border-radius: 50%; /* Make it perfectly circular */
-        background-color: #FF69B4; /* Pink color */
-        color: white; /* White color for the icon */
-        display: flex; /* Use flexbox to center the icon */
-        justify-content: center; /* Center horizontally */
-        align-items: center; /* Center vertically */
-        font-size: 1.2em; /* Size of the arrow icon */
-        text-decoration: none; /* Remove underline */
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Subtle shadow for depth */
-        transition: background-color 0.3s ease; /* Smooth hover effect */
-        z-index: 10; /* Ensure it's above other content */
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #A08AD3;
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.2em;
+        text-decoration: none;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        transition: background-color 0.3s ease;
+        z-index: 10;
     }
 
     .back-arrow-button:hover {
-        background-color: #FF1493; /* Darker pink on hover */
+        background-color: #A08AD3;
     }
 </style>
