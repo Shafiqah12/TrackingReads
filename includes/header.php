@@ -43,8 +43,11 @@ if (session_status() === PHP_SESSION_NONE) {
                 <?php endif; ?>
 
                 <?php if (isset($_SESSION["user_role"]) && $_SESSION["user_role"] === "admin"): ?>
-                    <li><a href="/TrackingReads/admin/admin-profile.php">Admin Profile</a></li>
-                    <li><a href="/TrackingReads/admin/import_excel_to_db.php">Import Ebooks</a></li>
+                    <li><a href="/TrackingReads/admin/admin-profile.php">Clerk Profile</a></li>
+                <?php elseif (isset($_SESSION["user_role"]) && $_SESSION["user_role"] === "manager"): ?>
+                    <li><a href="/TrackingReads/admin/admin-profile.php">Managaer Profile</a></li>
+                    <li><a href="/TrackingReads/admin/admin-profile.php">Manage Clerk</a></li>
+                    <li><a href="/TrackingReads/admin/admin-profile.php">Manager User</a></li>
                 <?php elseif (isset($_SESSION["user_role"]) && $_SESSION["user_role"] === "user"): // Assuming 'user' is the role for regular users ?>
                     <li><a href="/TrackingReads/profile.php">User Profile</a></li>
                     <li><a href="/TrackingReads/mybooks.php">My Books</a></li>

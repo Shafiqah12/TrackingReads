@@ -12,7 +12,7 @@ session_start();
 require_once '../includes/db_connect.php';
 
 // Check if the user is logged in and is an admin (or has appropriate privileges)
-if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || $_SESSION["user_role"] !== "admin") {
+if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || $_SESSION["user_role"] !== "manager") {
     // Redirect non-admin users or not logged in users to the login page (one level up)
     header("location: ../login.php");
     exit;

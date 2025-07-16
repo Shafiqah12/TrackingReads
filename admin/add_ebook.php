@@ -9,14 +9,19 @@ session_start();
 require_once '../includes/db_connect.php';
 
 // Tentukan peranan yang dibenarkan untuk mengakses halaman ini
-// Admin, Manager, dan Clerk dibenarkan menambah ebook.
 $allowedRoles = ['admin', 'manager', 'clerk'];
 
 // Semak jika pengguna TIDAK log masuk ATAU TIDAK mempunyai peranan yang dibenarkan
 if (empty($_SESSION['loggedin']) || !in_array($_SESSION['user_role'], $allowedRoles)) {
-    header("Location: ../login.php"); // Arahkan ke halaman log masuk jika tidak dibenarkan
+    error_log("Access Denied: User not logged in or role not allowed for add_ebook.php. Role: " . ($_SESSION['user_role'] ?? 'N/A'));
+    header("Location: ../login.php");
     exit;
 }
+
+// Dapatkan user_id dari sesi untuk kolum uploaded_by
+$current_user_id = $_SESSION['user_id'] ?? null;
+error_log("DEBUG: add_ebook.php - User ID from session: " . ($current_user_id ?? 'NULL'));
+
 
 // Mulakan pembolehubah untuk medan borang dan mesej ralat
 $no = $penulis = $tajuk = $muka_surat = $perkataan = $harga_rm = $genre = $bulan = $tahun = $penerbit = '';
@@ -25,6 +30,8 @@ $successMessage = '';
 
 // Proses penyerahan borang
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    error_log("DEBUG: add_ebook.php - POST request received.");
+
     // Bersihkan dan sahkan input
     $no         = filter_var(trim($_POST['no'] ?? ''), FILTER_SANITIZE_NUMBER_INT);
     $penulis    = filter_var(trim($_POST['penulis'] ?? ''), FILTER_UNSAFE_RAW);
@@ -37,44 +44,88 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tahun      = filter_var(trim($_POST['tahun'] ?? ''), FILTER_SANITIZE_NUMBER_INT);
     $penerbit   = filter_var(trim($_POST['penerbit'] ?? ''), FILTER_UNSAFE_RAW);
 
+    // Tambah pembolehubah untuk description dan file_path (jika ada dalam borang atau set kepada NULL)
+    // Berdasarkan struktur DB, description boleh NULL, file_path juga boleh NULL (selepas perubahan DB)
+    $description = filter_var(trim($_POST['description'] ?? ''), FILTER_UNSAFE_RAW) ?: NULL; // Jika kosong, set kepada NULL
+    $file_path = filter_var(trim($_POST['file_path'] ?? ''), FILTER_UNSAFE_RAW) ?: NULL; // Jika kosong, set kepada NULL
+
+    // Log nilai input yang diterima
+    error_log("DEBUG: add_ebook.php - Input values: NO=$no, Penulis=$penulis, Tajuk=$tajuk, Muka_Surat=$muka_surat, Perkataan=$perkataan, Harga_RM=$harga_rm, Genre=$genre, Bulan=$bulan, Tahun=$tahun, Penerbit=$penerbit, Description=" . ($description ?? 'NULL') . ", File_Path=" . ($file_path ?? 'NULL'));
+
+
     // Pengesahan asas
     if (empty($penulis)) $errors['penulis'] = 'Penulis diperlukan.';
     if (empty($tajuk)) $errors['tajuk'] = 'Tajuk diperlukan.';
-    // Validasi untuk medan nombor yang mungkin kosong tetapi perlu ditukar ke 0 jika bukan nombor
     if (!empty($no) && !is_numeric($no)) $errors['no'] = 'NO mestilah nombor.';
     if (!empty($muka_surat) && !is_numeric($muka_surat)) $errors['muka_surat'] = 'Muka Surat mestilah nombor.';
     if (!empty($perkataan) && !is_numeric($perkataan)) $errors['perkataan'] = 'Perkataan mestilah nombor.';
     if (!empty($harga_rm) && !is_numeric($harga_rm)) $errors['harga_rm'] = 'Harga (RM) mestilah nombor.';
     if (!empty($tahun) && !is_numeric($tahun)) $errors['tahun'] = 'Tahun mestilah nombor.';
 
+    // PENTING: Sahkan uploaded_by_id wujud
+    if (is_null($current_user_id)) {
+        $errors['user_id'] = 'ID pengguna yang log masuk tidak ditemui. Sila log masuk semula.';
+    }
+
     // Jika tiada ralat pengesahan, teruskan dengan memasukkan ke pangkalan data
     if (empty($errors)) {
+        error_log("DEBUG: add_ebook.php - No validation errors, attempting database insert.");
+        // Mulakan transaksi secara manual
+        $conn->begin_transaction();
+        error_log("DEBUG: add_ebook.php - Transaction started.");
+
         try {
-            // Sediakan pernyataan INSERT
-            $sql = "INSERT INTO ebooks (no, penulis, tajuk, muka_surat, perkataan, harga_rm, genre, bulan, tahun, penerbit) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            // Sediakan pernyataan INSERT - PASTIKAN SEMUA KOLUM YANG TIDAK NULL DISERTAKAN
+            // Jika description dan file_path dibenarkan NULL di DB, kita boleh masukkan NULL jika tiada input
+            $sql = "INSERT INTO ebooks (no, penulis, tajuk, description, file_path, muka_surat, perkataan, harga_rm, genre, bulan, tahun, penerbit, uploaded_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt = $conn->prepare($sql);
 
             if ($stmt === false) {
+                // Log ralat penyediaan pernyataan
+                error_log("DEBUG: Add Ebook Prepare Error: " . $conn->error . " - SQL: " . $sql);
                 throw new Exception("Penyediaan gagal: " . $conn->error);
             }
 
-            // Bind parameter (s=string, i=integer, d=double/float)
-            // KOD DIBETULKAN: "isiiidssis" (10 karakter, sepadan dengan 10 kolum)
-            $stmt->bind_param("isiiidssis", $no, $penulis, $tajuk, $muka_surat, $perkataan, $harga_rm, $genre, $bulan, $tahun, $penerbit);
+            // --- DEBUGGING TAJUK: Log nilai dan jenis $tajuk sebelum bind_param ---
+            error_log("DEBUG: add_ebook.php - Value of \$tajuk before bind_param: '" . $tajuk . "'");
+            error_log("DEBUG: add_ebook.php - Type of \$tajuk before bind_param: " . gettype($tajuk));
+            // --- TAMAT DEBUGGING TAJUK ---
+
+            // Bind parameter - Sesuaikan jenis dan bilangan parameter
+            // "isssisiiidssi" -> 13 parameter (no, penulis, tajuk, description, file_path, muka_surat, perkataan, harga_rm, genre, bulan, tahun, penerbit, uploaded_by)
+            // i (no), s (penulis), s (tajuk), s (description), s (file_path), i (muka_surat), i (perkataan), d (harga_rm), s (genre), s (bulan), i (tahun), s (penerbit), i (uploaded_by)
+            $paramTypes = "isssisiiidssi";
+            error_log("DEBUG: add_ebook.php - Binding parameters: Types '$paramTypes', Values: $no, $penulis, $tajuk, " . ($description ?? 'NULL') . ", " . ($file_path ?? 'NULL') . ", $muka_surat, $perkataan, $harga_rm, $genre, $bulan, $tahun, $penerbit, $current_user_id");
+            $stmt->bind_param($paramTypes, $no, $penulis, $tajuk, $description, $file_path, $muka_surat, $perkataan, $harga_rm, $genre, $bulan, $tahun, $penerbit, $current_user_id);
 
             // Laksanakan pernyataan
             if ($stmt->execute()) {
-                $successMessage = "Ebook berjaya ditambah!";
-                // Kosongkan medan borang selepas penyerahan berjaya
-                $no = $penulis = $tajuk = $muka_surat = $perkataan = $harga_rm = $genre = $bulan = $tahun = $penerbit = '';
+                error_log("DEBUG: add_ebook.php - Statement executed successfully.");
+                // Semak berapa banyak baris yang terjejas (sepatutnya 1)
+                if ($stmt->affected_rows === 1) {
+                    $conn->commit(); // Sahkan transaksi
+                    $successMessage = "Ebook berjaya ditambah!";
+                    error_log("DEBUG: Add Ebook Success: 1 row affected. Last Insert ID: " . $conn->insert_id . ". Transaction committed.");
+                    // Kosongkan medan borang selepas penyerahan berjaya
+                    $no = $penulis = $tajuk = $muka_surat = $perkataan = $harga_rm = $genre = $bulan = $tahun = $penerbit = '';
+                    $description = $file_path = ''; // Kosongkan juga ini
+                } else {
+                    $conn->rollback(); // Gulung balik jika tiada baris terjejas
+                    $errors['db_error'] = "Ebook tidak dapat ditambah. Tiada baris terjejas.";
+                    error_log("DEBUG: Add Ebook Execute Warning: No rows affected. Error: " . $stmt->error . ". Transaction rolled back.");
+                }
             } else {
-                throw new Exception("Pelaksanaan gagal: " . $stmt->error);
+                $conn->rollback(); // Gulung balik jika pelaksanaan gagal
+                error_log("DEBUG: Add Ebook Execute Error: " . $stmt->error . " - SQL: " . $sql . ". Transaction rolled back.");
+                $errors['db_error'] = "Pelaksanaan gagal: " . $stmt->error;
             }
 
             $stmt->close();
 
         } catch (Exception $e) {
+            $conn->rollback(); // Gulung balik jika ada pengecualian
             $errors['db_error'] = "Ralat pangkalan data: " . htmlspecialchars($e->getMessage());
+            error_log("DEBUG: Add Ebook General Error: " . $e->getMessage() . ". Transaction rolled back.");
         }
     }
 }
@@ -119,6 +170,18 @@ require_once '../includes/header.php';
             <?php if (isset($errors['tajuk'])): ?><span class="help-block"><?= $errors['tajuk'] ?></span><?php endif; ?>
         </div>
 
+        <!-- Tambah medan untuk description dan file_path jika perlu, atau biarkan ia tidak kelihatan -->
+        <!-- Contoh:
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" class="form-control"><?= htmlspecialchars($description ?? '') ?></textarea>
+        </div>
+        <div class="form-group">
+            <label for="file_path">File Path:</label>
+            <input type="text" id="file_path" name="file_path" class="form-control" value="<?= htmlspecialchars($file_path ?? '') ?>">
+        </div>
+        -->
+
         <div class="form-group">
             <label for="muka_surat">Muka Surat (Pages):</label>
             <input type="number" id="muka_surat" name="muka_surat" class="form-control" value="<?= htmlspecialchars($muka_surat) ?>">
@@ -134,7 +197,9 @@ require_once '../includes/header.php';
         <div class="form-group">
             <label for="harga_rm">Harga (RM):</label>
             <input type="number" step="0.01" id="harga_rm" name="harga_rm" class="form-control" value="<?= htmlspecialchars($harga_rm) ?>">
-            <?php if (isset($errors['harga_rm'])): ?><span class="help-block"><?= $errors['harga_rm'] ?></span><?php endif; ?>
+            <?php if (isset(
+                $errors['harga_rm']
+            )): ?><span class="help-block"><?= $errors['harga_rm'] ?></span><?php endif; ?>
         </div>
 
         <div class="form-group">

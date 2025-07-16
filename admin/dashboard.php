@@ -10,7 +10,7 @@ require_once '../includes/db_connect.php';
 
 // Tentukan peranan yang dibenarkan untuk mengakses halaman dashboard ini
 // Admin dan Manager dibenarkan. Clerk tidak dibenarkan mengakses dashboard ini.
-$allowedRoles = ['admin', 'manager'];
+$allowedRoles = ['manager'];
 
 // Semak jika pengguna TIDAK log masuk ATAU TIDAK mempunyai peranan yang dibenarkan
 if (empty($_SESSION['loggedin']) || !in_array($_SESSION['user_role'], $allowedRoles)) {
@@ -59,7 +59,7 @@ require_once '../includes/header.php';
 
 <div class="main-content-area">
     <h2>Welcome, <?php echo htmlspecialchars($_SESSION["username"]); ?>!</h2>
-    <p>This is your dashboard. Here you can manage ebooks and users.</p>
+    <p>This is your dashboard. Here you can generate report and manage clerk or users.</p>
     <p>Your role: <strong><?php echo htmlspecialchars($currentUserRole); ?></strong></p>
 
     <div class="dashboard-content">
@@ -70,26 +70,13 @@ require_once '../includes/header.php';
         <h3>Actions</h3>
         <div class="admin-actions-buttons">
             <!-- Add New Ebook: Dibenarkan untuk Admin, Manager, Clerk -->
-            <?php if (in_array($currentUserRole, ['admin', 'manager', 'clerk'])): ?>
-                <a href="add_ebook.php" class="btn btn-primary">Add New Ebook</a>
-            <?php endif; ?>
-
-            <!-- View Ebook Library: Dibenarkan untuk semua (pautan umum) -->
-            <a href="../index.php" class="btn btn-primary">View Ebook Library</a>
-
-            <!-- Manage Ebook (Edit/Delete): Dibenarkan untuk Admin, Manager -->
-            <?php if (in_array($currentUserRole, ['admin', 'manager'])): ?>
-                <a href="manage-ebook.php" class="btn btn-primary">Manage Ebooks</a>
-            <?php endif; ?>
-
-            <!-- Export Ebooks: Dibenarkan untuk Admin sahaja (atau Admin dan Manager jika anda mahu) -->
-            <?php if (in_array($currentUserRole, ['admin'])): // Ubah kepada ['admin', 'manager'] jika Manager boleh eksport ?>
-                <a href="../export_ebooks.php" class="btn btn-primary">Export Ebooks to Excel/CSV</a>
+            <?php if (in_array($currentUserRole, ['manager'])): ?>
+                <a href="richest_ebooks_report.php" class="btn btn-primary">Generate Report</a>
             <?php endif; ?>
 
             <!-- Contoh: Manage Users: Dibenarkan untuk Admin sahaja -->
-            <?php if (in_array($currentUserRole, ['admin'])): ?>
-                <a href="manage_users.php" class="btn btn-primary">Manage Users</a>
+            <?php if (in_array($currentUserRole, ['manager'])): ?>
+                <a href="manage_users.php" class="btn btn-primary">Manage Clerk/Users</a>
             <?php endif; ?>
         </div>
     </div>

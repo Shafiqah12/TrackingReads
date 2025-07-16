@@ -8,7 +8,7 @@ ini_set('display_errors', 1);
 session_start();
 require_once 'includes/db_connect.php';
 
-// Access Control:
+// Access Control: Only check if logged in. No role-based access needed for viewing details.
 if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
     header("location: /TrackingReads/login.php");
     exit;
@@ -22,9 +22,11 @@ $user_has_reviewed = false; // Track if current user has reviewed this ebook
 $user_review_rating = null; // Store user's existing rating
 $user_review_text = null; // Store user's existing review text
 
-$ebook_id = isset($_GET['id']) ? (int)$_GET['id'] : 0; // Get ebook ID from URL
+// Get ebook ID from URL, ensure it's an integer
+$ebook_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
-// Handle messages from review submission
+// Handle messages from review submission (e.g., from submit_review.php)
+$status_type = '';
 $status_message = '';
 if (isset($_GET['status']) && isset($_GET['message'])) {
     $status_type = htmlspecialchars($_GET['status']);
@@ -33,13 +35,14 @@ if (isset($_GET['status']) && isset($_GET['message'])) {
 
 if ($ebook_id > 0 && $conn) {
     // 1. Fetch Ebook Details
+    // Added e.description to the SELECT statement as it's used in display
     $sql_fetch_ebook = "SELECT e.id, e.no, e.tajuk AS title, e.description, e.harga_rm AS price, e.file_path,
                                e.penulis, e.muka_surat, e.perkataan, e.genre, e.bulan, e.tahun, e.penerbit,
                                u.username AS uploaded_by_username, e.created_at,
                                (SELECT COUNT(*) FROM wishlist w WHERE w.user_id = ? AND w.ebook_id = e.id) AS is_in_wishlist,
                                (SELECT COUNT(*) FROM read_status rs WHERE rs.user_id = ? AND rs.ebook_id = e.id) AS is_read
                         FROM ebooks e
-                        JOIN users u ON e.uploaded_by = u.id
+                        LEFT JOIN users u ON e.uploaded_by = u.id -- Use LEFT JOIN in case uploaded_by is NULL or user doesn't exist
                         WHERE e.id = ?";
 
     if ($stmt_ebook = $conn->prepare($sql_fetch_ebook)) {
@@ -87,7 +90,7 @@ if ($ebook_id > 0 && $conn) {
         $stmt_avg->execute();
         $result_avg = $stmt_avg->get_result();
         $avg_row = $result_avg->fetch_assoc();
-        $average_rating = round($avg_row['avg_rating'] ?? 0, 1); // Round to 1 decimal place
+        $average_rating = round($avg_row['avg_rating'] ?? 0, 1); // Round to 1 decimal place, default 0 if NULL
         $stmt_avg->close();
     }
 
@@ -107,7 +110,7 @@ if ($ebook_id > 0 && $conn) {
     }
 
 } else {
-    $errorMessage = "Invalid Ebook ID provided.";
+    $errorMessage = "Invalid Ebook ID provided or database connection failed.";
 }
 
 require_once 'includes/header.php';
@@ -117,17 +120,17 @@ require_once 'includes/header.php';
     <a href="index.php" class="back-arrow-button" title="Back to Ebook Library"><i class="fas fa-arrow-left"></i></a>
 
     <?php if ($ebook): ?>
-        <h2><?php echo htmlspecialchars($ebook['title']); ?></h2>
-        <p><strong>NO:</strong> <?php echo htmlspecialchars($ebook['no']); ?></p>
-        <p><strong>Penulis:</strong> <?php echo htmlspecialchars($ebook['penulis']); ?></p>
-        <p><strong>Genre:</strong> <?php echo htmlspecialchars($ebook['genre']); ?></p>
-        <p><strong>Penerbit:</strong> <?php echo htmlspecialchars($ebook['penerbit']); ?></p>
-        <p><strong>Muka Surat:</strong> <?php echo htmlspecialchars($ebook['muka_surat']); ?></p>
-        <p><strong>Perkataan:</strong> <?php echo htmlspecialchars($ebook['perkataan']); ?></p>
-        <p><strong>Harga (RM):</strong> <?php echo htmlspecialchars(number_format($ebook['price'], 2)); ?></p>
-        <p><strong>Bulan:</strong> <?php echo htmlspecialchars($ebook['bulan']); ?></p>
-        <p><strong>Tahun:</strong> <?php echo htmlspecialchars($ebook['tahun']); ?></p>
-        <p><strong>Description:</strong> <?php echo htmlspecialchars($ebook['description']); ?></p>
+        <h2><?php echo htmlspecialchars($ebook['title'] ?? ''); ?></h2>
+        <p><strong>NO:</strong> <?php echo htmlspecialchars($ebook['no'] ?? ''); ?></p>
+        <p><strong>Penulis:</strong> <?php echo htmlspecialchars($ebook['penulis'] ?? ''); ?></p>
+        <p><strong>Genre:</strong> <?php echo htmlspecialchars($ebook['genre'] ?? ''); ?></p>
+        <p><strong>Penerbit:</strong> <?php echo htmlspecialchars($ebook['penerbit'] ?? ''); ?></p>
+        <p><strong>Muka Surat:</strong> <?php echo htmlspecialchars($ebook['muka_surat'] ?? ''); ?></p>
+        <p><strong>Perkataan:</strong> <?php echo htmlspecialchars($ebook['perkataan'] ?? ''); ?></p>
+        <p><strong>Harga (RM):</strong> <?php echo htmlspecialchars(number_format($ebook['price'] ?? 0, 2)); ?></p>
+        <p><strong>Bulan:</strong> <?php echo htmlspecialchars($ebook['bulan'] ?? ''); ?></p>
+        <p><strong>Tahun:</strong> <?php echo htmlspecialchars($ebook['tahun'] ?? ''); ?></p>
+        <p><strong>Description:</strong> <?php echo htmlspecialchars($ebook['description'] ?? ''); ?></p>
         <p class="uploaded-info">
             Uploaded by: <?php echo htmlspecialchars($ebook['uploaded_by_username'] ?? 'Unknown'); ?> on:
             <?php
@@ -198,16 +201,16 @@ require_once 'includes/header.php';
                 <div class="all-reviews-list">
                     <?php foreach ($reviews as $review): ?>
                         <div class="review-item mb-3 p-3 border rounded">
-                            <p><strong><?php echo htmlspecialchars($review['username']); ?></strong> rated: 
+                            <p><strong><?php echo htmlspecialchars($review['username'] ?? ''); ?></strong> rated: 
                                 <?php for ($i = 1; $i <= 5; $i++): ?>
                                     <span class="star <?php echo ($i <= $review['rating']) ? 'filled' : ''; ?>">&#9733;</span>
                                 <?php endfor; ?>
-                                (<?php echo htmlspecialchars($review['rating']); ?>/5)
+                                (<?php echo htmlspecialchars($review['rating'] ?? ''); ?>/5)
                             </p>
                             <?php if (!empty($review['review_text'])): ?>
-                                <p><?php echo nl2br(htmlspecialchars($review['review_text'])); ?></p>
+                                <p><?php echo nl2br(htmlspecialchars($review['review_text'] ?? '')); ?></p>
                             <?php endif; ?>
-                            <small class="text-muted">Reviewed on: <?php echo htmlspecialchars(date("F j, Y", strtotime($review['created_at']))); ?></small>
+                            <small class="text-muted">Reviewed on: <?php echo htmlspecialchars(date("F j, Y", strtotime($review['created_at'] ?? ''))); ?></small>
                         </div>
                     <?php endforeach; ?>
                 </div>
