@@ -16,11 +16,11 @@ if ($conn) {
     // is_read is still fetched for potential future use or if the user wants a badge,
     // but the buttons for it will be removed.
     $sql_wishlist = "SELECT e.id, e.tajuk, e.penulis, e.penerbit, e.harga_rm,
-                            (SELECT COUNT(*) FROM read_status rs WHERE rs.user_id = ? AND rs.ebook_id = e.id) AS is_read
-                     FROM ebooks e
-                     JOIN wishlist w ON e.id = w.ebook_id
-                     WHERE w.user_id = ?
-                     ORDER BY w.added_at DESC";
+                                 (SELECT COUNT(*) FROM read_status rs WHERE rs.user_id = ? AND rs.ebook_id = e.id) AS is_read
+                             FROM ebooks e
+                             JOIN wishlist w ON e.id = w.ebook_id
+                             WHERE w.user_id = ?
+                             ORDER BY w.added_at DESC";
 
     if ($stmt_wishlist = $conn->prepare($sql_wishlist)) {
         $stmt_wishlist->bind_param("ii", $user_id, $user_id); // Bind user_id twice
@@ -75,7 +75,7 @@ require_once 'includes/header.php';
 
                         <a href="/TrackingReads/remove_from_wishlist.php?ebook_id=<?php echo htmlspecialchars($ebook['id']); ?>"
                            class="btn btn-remove bg-pink-600 text-white px-3 py-1 rounded-md text-sm hover:bg-pink-700">
-                           Remove from Wishlist
+                            Remove from Wishlist
                         </a>
                     </div>
                 </div>

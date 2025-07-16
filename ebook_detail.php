@@ -34,13 +34,13 @@ if (isset($_GET['status']) && isset($_GET['message'])) {
 if ($ebook_id > 0 && $conn) {
     // 1. Fetch Ebook Details
     $sql_fetch_ebook = "SELECT e.id, e.no, e.tajuk AS title, e.description, e.harga_rm AS price, e.file_path,
-                                  e.penulis, e.muka_surat, e.perkataan, e.genre, e.bulan, e.tahun, e.penerbit,
-                                  u.username AS uploaded_by_username, e.created_at,
-                                  (SELECT COUNT(*) FROM wishlist w WHERE w.user_id = ? AND w.ebook_id = e.id) AS is_in_wishlist,
-                                  (SELECT COUNT(*) FROM read_status rs WHERE rs.user_id = ? AND rs.ebook_id = e.id) AS is_read
-                          FROM ebooks e
-                          JOIN users u ON e.uploaded_by = u.id
-                          WHERE e.id = ?";
+                                    e.penulis, e.muka_surat, e.perkataan, e.genre, e.bulan, e.tahun, e.penerbit,
+                                    u.username AS uploaded_by_username, e.created_at,
+                                    (SELECT COUNT(*) FROM wishlist w WHERE w.user_id = ? AND w.ebook_id = e.id) AS is_in_wishlist,
+                                    (SELECT COUNT(*) FROM read_status rs WHERE rs.user_id = ? AND rs.ebook_id = e.id) AS is_read
+                              FROM ebooks e
+                              JOIN users u ON e.uploaded_by = u.id
+                              WHERE e.id = ?";
 
     if ($stmt_ebook = $conn->prepare($sql_fetch_ebook)) {
         $stmt_ebook->bind_param("iii", $user_id, $user_id, $ebook_id);
@@ -60,10 +60,10 @@ if ($ebook_id > 0 && $conn) {
 
     // 2. Fetch Reviews for this Ebook
     $sql_fetch_reviews = "SELECT r.rating, r.review_text, r.created_at, u.username
-                          FROM reviews r
-                          JOIN users u ON r.user_id = u.id
-                          WHERE r.ebook_id = ?
-                          ORDER BY r.created_at DESC";
+                              FROM reviews r
+                              JOIN users u ON r.user_id = u.id
+                              WHERE r.ebook_id = ?
+                              ORDER BY r.created_at DESC";
 
     if ($stmt_reviews = $conn->prepare($sql_fetch_reviews)) {
         $stmt_reviews->bind_param("i", $ebook_id);
@@ -114,7 +114,7 @@ require_once 'includes/header.php';
 ?>
 
 <div class="container ebook-detail-container">
-    <a href="javascript:history.back()" class="back-arrow-button" title="Back to previous page"><i class="fas fa-arrow-left"></i></a>
+    <a href="index.php" class="back-arrow-button" title="Back to Ebook Library"><i class="fas fa-arrow-left"></i></a>
 
     <?php if ($ebook): ?>
         <h2><?php echo htmlspecialchars($ebook['title']); ?></h2>
@@ -172,7 +172,7 @@ require_once 'includes/header.php';
             <h4><?php echo $user_has_reviewed ? 'Update Your Review' : 'Submit Your Review'; ?></h4>
             <form action="submit_review.php" method="POST">
                 <input type="hidden" name="ebook_id" value="<?php echo htmlspecialchars($ebook_id); ?>">
-                
+
                 <div class="form-group mb-3">
                     <label for="rating">Your Rating:</label>
                     <div class="star-rating" data-rating="<?php echo htmlspecialchars($user_review_rating ?? 0); ?>">
@@ -189,7 +189,7 @@ require_once 'includes/header.php';
                     <label for="review_text">Your Review:</label>
                     <textarea name="review_text" id="review_text" rows="5" class="form-control" placeholder="Write your review here..."><?php echo htmlspecialchars($user_review_text ?? ''); ?></textarea>
                 </div>
-                
+
                 <button type="submit" class="btn btn-primary"><?php echo $user_has_reviewed ? 'Update Review' : 'Submit Review'; ?></button>
             </form>
 
@@ -198,7 +198,7 @@ require_once 'includes/header.php';
                 <div class="all-reviews-list">
                     <?php foreach ($reviews as $review): ?>
                         <div class="review-item mb-3 p-3 border rounded">
-                            <p><strong><?php echo htmlspecialchars($review['username']); ?></strong> rated: 
+                            <p><strong><?php echo htmlspecialchars($review['username']); ?></strong> rated:
                                 <?php for ($i = 1; $i <= 5; $i++): ?>
                                     <span class="star <?php echo ($i <= $review['rating']) ? 'filled' : ''; ?>">&#9733;</span>
                                 <?php endfor; ?>
@@ -350,78 +350,29 @@ require_once 'includes/footer.php';
         padding-top: 50px;
     }
 
-    .back-arrow-button {
-        position: absolute;
-        top: 15px;
-        left: 15px;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background-color: #A08AD3;
-        color: white;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 1.2em;
-        text-decoration: none;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        transition: background-color 0.3s ease;
-        z-index: 10;
-    }
+  .back-arrow-button {
+    position: absolute;
+    top: 15px; /* Adjust as needed */
+    left: 15px; /* Adjust as needed */
+    width: 40px;
+    height: 40px;
+    border-radius: 50%; /* Makes it a circle */
+    background-color: #A08AD3; /* Your current purple color */
+    color: white; /* Your current white arrow color */
+    display: flex; /* For centering the icon */
+    justify-content: center; /* For centering the icon horizontally */
+    align-items: center; /* For centering the icon vertically */
+    text-decoration: none; /* Removes underline from the link */
+    box-shadow: none; /* Remove any existing shadow if present */
+    border: 2px solid white; /* Add a white border for the "outline" effect */
+    /* You had a color in the original CSS which was just `color: white;` */
+    /* If you literally want a black outline as in the image, but the button to remain purple, you'd do: */
+    /* border: 2px solid black; */
+}
 
-    .back-arrow-button:hover {
-        background-color: #A08AD3;
-    }
+/* If the icon itself is not taking the `color: white;`, target it directly */
+.back-arrow-button i {
+    color: white; /* Ensure the Font Awesome icon is white */
+    font-size: 1.2em; /* Adjust icon size as needed */
+}
 </style>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const ratingContainer = document.querySelector('.star-rating');
-        const hiddenInput = document.getElementById('rating_input');
-        const stars = Array.from(ratingContainer.querySelectorAll('.star-rating-star')); // Convert NodeList to Array
-        let currentRating = parseInt(ratingContainer.dataset.rating) || 0;
-
-        // Function to update star display based on a given rating
-        function updateStars(rating) {
-            stars.forEach((star, index) => {
-                if (index < rating) { // Fill stars from left up to the rating
-                    star.style.color = 'gold';
-                } else {
-                    star.style.color = '#ccc';
-                }
-            });
-        }
-
-        // Initialize stars based on existing user rating
-        if (currentRating > 0) {
-            updateStars(currentRating);
-        } else {
-            // Ensure all stars are initially unfilled if no rating
-            updateStars(0);
-        }
-
-        // Mouseover (hover) effect
-        ratingContainer.addEventListener('mouseover', function(e) {
-            if (e.target.classList.contains('star-rating-star')) {
-                const hoverValue = parseInt(e.target.dataset.value);
-                updateStars(hoverValue);
-            }
-        });
-
-        // Mouseout (reset) effect
-        ratingContainer.addEventListener('mouseout', function() {
-            // Reset to the currently selected rating, or 0 if none
-            updateStars(currentRating);
-        });
-
-        // Click (select) effect
-        ratingContainer.addEventListener('click', function(e) {
-            if (e.target.classList.contains('star-rating-star')) {
-                const clickedValue = parseInt(e.target.dataset.value);
-                currentRating = clickedValue; // Update currentRating
-                hiddenInput.value = currentRating; // Set hidden input value
-                updateStars(currentRating); // Update display
-            }
-        });
-    });
-</script>

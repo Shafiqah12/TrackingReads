@@ -30,8 +30,8 @@ if ($conn) { // Check if database connection is successful
     // SQL query to retrieve ebooks marked as read by the current user
     // Added penulis, penerbit, and is_in_wishlist check (still needed for the badge)
     $sql_fetch_read_ebooks = "SELECT e.id, e.tajuk, e.penulis, e.penerbit, e.harga_rm,
-                                      (SELECT COUNT(*) FROM wishlist w WHERE w.user_id = ? AND w.ebook_id = e.id) AS is_in_wishlist,
-                                      rs.marked_as_read_at
+                                     (SELECT COUNT(*) FROM wishlist w WHERE w.user_id = ? AND w.ebook_id = e.id) AS is_in_wishlist,
+                                     rs.marked_as_read_at
                                FROM ebooks e
                                JOIN read_status rs ON e.id = rs.ebook_id
                                WHERE rs.user_id = ?
@@ -86,7 +86,7 @@ require_once 'includes/header.php'; // Ensure this path is correct
 
                     <div class="ebook-actions mt-4 flex flex-col gap-2"> <a href="mark_as_unread.php?ebook_id=<?php echo htmlspecialchars($ebook['id']); ?>"
                            class="btn btn-secondary bg-gray-200 text-gray-800 px-3 py-2 rounded-md text-sm hover:bg-gray-300 text-center">
-                           Mark as Unread
+                            Mark as Unread
                         </a>
                     </div>
                 </div>
