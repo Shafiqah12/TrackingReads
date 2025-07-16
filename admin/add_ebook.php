@@ -1,15 +1,19 @@
 <?php
 // admin/add_ebook.php
-// Halaman ini membolehkan pentadbir menambah rekod ebook baharu.
+// Halaman ini membolehkan pentadbir, pengurus, dan kerani menambah rekod ebook baharu.
 
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-session_start(); // Mulakan sesi
-require_once '../includes/db_connect.php'; // Laluan relatif ke admin/add_ebook.php
+session_start();
+require_once '../includes/db_connect.php';
 
-// Kawalan akses: Pastikan hanya pentadbir yang log masuk boleh mengakses halaman ini
-if (empty($_SESSION['loggedin']) || $_SESSION['user_role'] !== 'admin') {
+// Tentukan peranan yang dibenarkan untuk mengakses halaman ini
+// Admin, Manager, dan Clerk dibenarkan menambah ebook.
+$allowedRoles = ['admin', 'manager', 'clerk'];
+
+// Semak jika pengguna TIDAK log masuk ATAU TIDAK mempunyai peranan yang dibenarkan
+if (empty($_SESSION['loggedin']) || !in_array($_SESSION['user_role'], $allowedRoles)) {
     header("Location: ../login.php"); // Arahkan ke halaman log masuk jika tidak dibenarkan
     exit;
 }
@@ -36,6 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Pengesahan asas
     if (empty($penulis)) $errors['penulis'] = 'Penulis diperlukan.';
     if (empty($tajuk)) $errors['tajuk'] = 'Tajuk diperlukan.';
+    // Validasi untuk medan nombor yang mungkin kosong tetapi perlu ditukar ke 0 jika bukan nombor
     if (!empty($no) && !is_numeric($no)) $errors['no'] = 'NO mestilah nombor.';
     if (!empty($muka_surat) && !is_numeric($muka_surat)) $errors['muka_surat'] = 'Muka Surat mestilah nombor.';
     if (!empty($perkataan) && !is_numeric($perkataan)) $errors['perkataan'] = 'Perkataan mestilah nombor.';
@@ -54,8 +59,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             // Bind parameter (s=string, i=integer, d=double/float)
-            // KOD DIBETULKAN: 's' untuk tajuk
-            $stmt->bind_param("issiiidssis", $no, $penulis, $tajuk, $muka_surat, $perkataan, $harga_rm, $genre, $bulan, $tahun, $penerbit);
+            // KOD DIBETULKAN: "isiiidssis" (10 karakter, sepadan dengan 10 kolum)
+            $stmt->bind_param("isiiidssis", $no, $penulis, $tajuk, $muka_surat, $perkataan, $harga_rm, $genre, $bulan, $tahun, $penerbit);
 
             // Laksanakan pernyataan
             if ($stmt->execute()) {
@@ -74,8 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Sertakan header sedia ada anda
-require_once '../includes/header.php'; // Laluan relatif ke admin/add_ebook.php
+require_once '../includes/header.php';
 ?>
 
 <div class="container">
@@ -96,7 +100,7 @@ require_once '../includes/header.php'; // Laluan relatif ke admin/add_ebook.php
         </div>
     <?php endif; ?>
 
-    <form method="post" action="add_ebook.php"> <!-- ACTION: Kekalkan sebagai 'add_ebook.php' kerana ia dalam folder yang sama -->
+    <form method="post" action="add_ebook.php">
         <div class="form-group">
             <label for="no">NO:</label>
             <input type="number" id="no" name="no" class="form-control" value="<?= htmlspecialchars($no) ?>">
@@ -162,10 +166,8 @@ require_once '../includes/header.php'; // Laluan relatif ke admin/add_ebook.php
 </div>
 
 <?php
-// Tutup sambungan pangkalan data pada akhir skrip
 if (isset($conn) && $conn->ping()) {
     $conn->close();
 }
-// Sertakan footer sedia ada anda
-require_once '../includes/footer.php'; // Laluan relatif ke admin/add_ebook.php
+require_once '../includes/footer.php';
 ?>
