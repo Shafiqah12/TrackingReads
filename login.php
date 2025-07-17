@@ -12,16 +12,15 @@ require_once 'includes/db_connect.php';
 if (!empty($_SESSION['loggedin'])) {
     switch ($_SESSION['user_role']) {
         case 'admin':
+        case 'manager':
+        case 'clerk':
+            // Admin, Manager, and Clerk should go to the admin dashboard
             header("Location: admin/dashboard.php");
             break;
-        case 'manager':
-            header("Location: admin/dashboard.php"); // Manager juga ke dashboard admin, tetapi akan melihat butang yang berbeza
-            break;
-        case 'clerk':
-            header("Location: index.php"); // Clerk terus ke halaman senarai ebook utama
-            break;
+        case 'user':
         default:
-            header("Location: index.php"); // Default untuk peranan tidak dikenali
+            // Regular users or undefined roles go to the main index page
+            header("Location: index.php");
             break;
     }
     exit;
@@ -33,7 +32,7 @@ $email_username_val = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email_username = trim($_POST['email_username'] ?? '');
-    $password       = trim($_POST['password']        ?? '');
+    $password       = trim($_POST['password']         ?? '');
 
     $email_username_val = htmlspecialchars($email_username);
 
@@ -73,16 +72,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     // Arahkan pengguna berdasarkan peranan mereka
                     switch ($role) {
                         case 'admin':
+                        case 'manager':
+                        case 'clerk':
+                            // Admin, Manager, and Clerk should go to the admin dashboard
                             header("Location: admin/dashboard.php");
                             break;
-                        case 'manager':
-                            header("Location: admin/dashboard.php"); // Manager juga ke dashboard admin
-                            break;
-                        case 'clerk':
-                            header("Location: index.php"); // Clerk terus ke halaman senarai ebook utama
-                            break;
+                        case 'user':
                         default:
-                            header("Location: index.php"); // Default untuk peranan tidak dikenali
+                            // Regular users or undefined roles go to the main index page
+                            header("Location: index.php");
                             break;
                     }
                     exit; // Hentikan pelaksanaan skrip selanjutnya
@@ -116,10 +114,5 @@ require_once 'includes/header.php';
         <button type="submit" class="btn btn-primary">Login</button>
     </form>
 
-    <div style="text-align:center;margin-top:20px;">
-        <a href="/TrackingReads/google-auth.php" class="btn btn-google">
-            <i class="fab fa-google"></i> Sign in with Google
-        </a>
-    </div>
 </div>
 <?php require_once 'includes/footer.php'; ?>

@@ -18,10 +18,13 @@ if (!empty($_SESSION['loggedin'])) {
     switch ($_SESSION['user_role']) {
         case 'admin':
         case 'manager':
+        case 'clerk':
+            // Admin, Manager, and Clerk should go to the admin dashboard
             header("Location: admin/dashboard.php");
             break;
-        case 'clerk':
+        case 'user':
         default:
+            // Regular users or undefined roles go to the main index page
             header("Location: index.php");
             break;
     }
@@ -192,12 +195,6 @@ require_once 'includes/header.php';
             <input type="submit" class="btn btn-primary" value="Register">
         </div>
         <p>Already have an account? <a href="login.php">Login here</a>.</p>
-        <!-- Optional: Google Sign-in button placeholder -->
-        <div class="google-signin-btn">
-            <p>Or sign in with Google:</p>
-            <!-- You'll need to integrate Google Sign-In API here -->
-            <button type="button" class="btn btn-google">Sign in with Google</button>
-        </div>
     </form>
 </div>
 
