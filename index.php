@@ -1,154 +1,249 @@
 <?php
+// index.php
+// Halaman utama sistem perpustakaan ebook.
+
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-session_start(); // Start the session
-require_once 'includes/db_connect.php'; // Use your existing database connection
+session_start(); // Mulakan sesi
+require_once 'includes/db_connect.php'; // Laluan relatif ke index.php
 
-// Redirect if not logged in (adjust this logic based on your system's needs)
-if (empty($_SESSION['loggedin'])) {
-    header("Location: login.php"); // Redirect to your login page
+// Kawalan akses: Pastikan hanya pengguna dengan peranan 'user' yang boleh mengakses halaman ini.
+// Manager dan Clerk tidak dibenarkan di sini, mereka akan melihat data ebook melalui antaramuka lain.
+if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || $_SESSION["user_role"] !== "user") {
+    // Jika bukan 'user' atau tidak log masuk, arahkan ke halaman log masuk
+    header("location: login.php"); 
     exit;
 }
 
-$user_id = $_SESSION['user_id']; // <--- IMPORTANT: Get user_id for wishlist/read status
+// ... (Rest of your existing index.php code below) ...
+// This includes the search functionality, ebook display, etc.
 
-// --- Search Logic ---
-$searchTerm = '';
-$ebooks = [];
-$searchPerformed = false;
-$errorMessage = null; // Initialize error message variable
+// Example of how your existing index.php might continue:
 
-try {
-    // Database connection is already established via db_connect.php, so $conn is available here.
+// Initialize variables for search and ebook results
+$search_query = '';
+$ebook_results = [];
 
-    // Base SQL query to fetch all ebook details required for display
-    // Added subqueries for 'is_in_wishlist' and 'is_read' similar to dashboard.php
-    $baseSql = "SELECT e.id, e.no, e.penulis, e.tajuk, e.muka_surat, e.perkataan, e.harga_rm, e.genre, e.bulan, e.tahun, e.penerbit,
-                       (SELECT COUNT(*) FROM wishlist w WHERE w.user_id = ? AND w.ebook_id = e.id) AS is_in_wishlist,
-                       (SELECT COUNT(*) FROM read_status rs WHERE rs.user_id = ? AND rs.ebook_id = e.id) AS is_read
-                FROM ebooks e";
-    
-    $whereClause = "";
-    $orderByClause = " ORDER BY e.id ASC"; // Keep consistent ordering
-    $limitClause = " LIMIT 100"; // Keep the limit for initial display if no search
+// Process search form submission
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['search_query'])) {
+    $search_query = filter_var(trim($_GET['search_query']), FILTER_UNSAFE_RAW);
 
-    $params = [$user_id, $user_id]; // Parameters for the user_id bindings
-    $paramTypes = "ii"; // 'i' for integer, two times
-
-    if (isset($_GET['search']) && !empty(trim($_GET['search']))) {
-        $searchPerformed = true;
-        $searchTerm = '%' . trim($_GET['search']) . '%'; // Prepare for LIKE
-        
-        $whereClause = " WHERE e.tajuk LIKE ? OR e.penulis LIKE ? OR e.penerbit LIKE ?";
-        $params[] = $searchTerm; // Add search term to parameters
-        $params[] = $searchTerm;
-        $params[] = $searchTerm;
-        $paramTypes .= "sss"; // Add 's' for string, three times
-        $limitClause = ""; // Remove limit if searching
-    }
-
-    $sql_fetch_ebooks = $baseSql . $whereClause . $orderByClause . $limitClause;
-
-    if ($stmt = $conn->prepare($sql_fetch_ebooks)) {
-        // Dynamically bind parameters based on whether search is performed
-        if ($searchPerformed) {
-            $stmt->bind_param($paramTypes, ...$params);
-        } else {
-            $stmt->bind_param($paramTypes, $user_id, $user_id);
-        }
-
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        if ($result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                $ebooks[] = $row;
+    if (!empty($search_query)) {
+        // Prepare a search query (example, adjust according to your database schema)
+        $sql_search = "SELECT id, no, penulis, tajuk, description, file_path, muka_surat, perkataan, harga_rm, genre, bulan, tahun, penerbit FROM ebooks WHERE tajuk LIKE ? OR penulis LIKE ? OR penerbit LIKE ?";
+        if ($stmt_search = $conn->prepare($sql_search)) {
+            $param_search = "%" . $search_query . "%";
+            $stmt_search->bind_param("sss", $param_search, $param_search, $param_search);
+            $stmt_search->execute();
+            $result_search = $stmt_search->get_result();
+            while ($row = $result_search->fetch_assoc()) {
+                $ebook_results[] = $row;
             }
+            $stmt_search->close();
+        } else {
+            // Handle database error
+            echo "Error preparing search statement: " . htmlspecialchars($conn->error);
         }
-        $stmt->close();
-    } else {
-        throw new Exception("Error preparing SQL statement: " . $conn->error);
     }
-
-} catch (Exception $e) {
-    $errorMessage = "An error occurred: " . htmlspecialchars($e->getMessage());
-    error_log("Index page error: " . $e->getMessage()); // Log the error
 }
 
-// --- Include your existing header ---
+// Include header (assuming you have a header.php)
 require_once 'includes/header.php';
 ?>
 
-<div class="container"> <h1>Ebook Library System</h1>
+<div class="main-content-area">
+    <div class="auth-container">
+        <h2>EBOOK Library System</h2>
+        <p>Search for ebooks by title, author, or publisher.</p>
 
-    <?php if (isset($errorMessage) && $errorMessage): ?>
-        <div class="message error"><?= $errorMessage ?></div>
-    <?php endif; ?>
-
-    <div class="search-section">
-        <form method="GET" action="index.php" class="flex flex-col md:flex-row gap-2 mb-4">
-            <input
-                type="text"
-                name="search"
-                placeholder="Search by title, penulis, or penerbit..."
-                value="<?= htmlspecialchars(trim(str_replace('%', '', $searchTerm))) ?>"
-                class="form-control flex-grow p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <button type="submit" class="btn btn-search">Search Ebooks</button>
-            <?php if ($searchPerformed): ?>
-                <a href="index.php" class="btn btn-clear-search">Clear Search</a>
-            <?php endif; ?>
+        <form method="GET" action="index.php" class="search-form">
+            <div class="form-group">
+                <input type="text" name="search_query" class="form-control" placeholder="Search by title, penulis, or penerbit..." value="<?= htmlspecialchars($search_query) ?>">
+            </div>
+            <button type="submit" class="btn btn-primary">Search Ebooks</button>
         </form>
+
+        <h3>Ebook Results:</h3>
+        <div class="ebook-grid">
+            <?php if (!empty($ebook_results)): ?>
+                <?php foreach ($ebook_results as $ebook): ?>
+                    <div class="ebook-card">
+                        <?php if ($ebook['file_path']): ?>
+                            <img src="<?= htmlspecialchars($ebook['file_path']); ?>" alt="Ebook Image" class="ebook-image">
+                        <?php else: ?>
+                            <div class="ebook-image-placeholder">No Image</div>
+                        <?php endif; ?>
+                        <h4><?= htmlspecialchars($ebook['tajuk']); ?></h4>
+                        <p>Penulis: <?= htmlspecialchars($ebook['penulis']); ?></p>
+                        <p>Penerbit: <?= htmlspecialchars($ebook['penerbit']); ?></p>
+                        <button class="btn btn-secondary">Add to Wishlist <i class="fas fa-heart"></i></button>
+                        <button class="btn btn-secondary">Mark as Read <i class="fas fa-check-circle"></i></button>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <p>No ebooks found or no search performed.</p>
+            <?php endif; ?>
+        </div>
     </div>
+</div>
 
-    <h2>Ebook Results:</h2>
-
-    <?php
-    if ($searchPerformed && empty($ebooks)) {
-        echo '<div class="message error">No ebooks found matching "' . htmlspecialchars(trim(str_replace('%', '', $searchTerm))) . '".</div>';
-    } else if (empty($ebooks) && !$searchPerformed) {
-        echo '<div class="message info">No ebooks in the database. Please import data using <a href="admin/import_excel_to_db.php" class="text-blue-500 hover:underline">import_excel_to_db.php</a>.</div>';
-    } else {
-        echo '<div class="ebook-list">'; // Grid container for ebook items
-        foreach ($ebooks as $ebook) {
-            echo '<div class="ebook-item">'; // Individual ebook card
-
-            // --- ONLY THESE THREE LINES FOR INITIAL DISPLAY ---
-            echo '<a href="ebook_detail.php?id=' . htmlspecialchars($ebook['id']) . '" class="ebook-title-link">';
-            echo '<h3>' . htmlspecialchars($ebook['tajuk'] ?? '') . '</h3>'; // Ebook Title
-            echo '</a>';
-            echo '<p><strong>Penulis:</strong> ' . htmlspecialchars($ebook['penulis'] ?? '') . '</p>'; // Penulis (Author)
-            echo '<p><strong>Penerbit:</strong> ' . htmlspecialchars($ebook['penerbit'] ?? '') . '</p>'; // Penerbit (Publisher)
-            // --- END OF INITIAL DISPLAY ---
-
-            // Wishlist and Mark as Read/Unread actions (as previously provided)
-            echo '<div class="ebook-actions">';
-            if ($ebook['is_in_wishlist']) {
-                echo '<span class="status-badge wishlist">In Wishlist <i class="fas fa-heart"></i></span>';
-                echo '<a href="remove_from_wishlist.php?ebook_id=' . htmlspecialchars($ebook['id']) . '" class="btn btn-secondary btn-sm">Remove from Wishlist</a>';
-            } else {
-                echo '<a href="add_to_wishlist.php?ebook_id=' . htmlspecialchars($ebook['id']) . '" class="btn btn-info btn-sm">Add to Wishlist <i class="far fa-heart"></i></a>';
-            }
-
-            if ($ebook['is_read']) {
-                echo '<span class="status-badge read">Read <i class="fas fa-check-circle"></i></span>';
-                echo '<a href="mark_as_unread.php?ebook_id=' . htmlspecialchars($ebook['id']) . '" class="btn btn-secondary btn-sm">Mark as Unread</a>';
-            } else {
-                echo '<a href="mark_as_read.php?ebook_id=' . htmlspecialchars($ebook['id']) . '" class="btn btn-success btn-sm">Mark as Read <i class="far fa-check-circle"></i></a>';
-            }
-            echo '</div>'; // End ebook-actions
-
-            echo '</div>'; // End of ebook-item
-        }
-        echo '</div>'; // End of ebook-list
+<style>
+    /* Basic styling for form elements for consistency */
+    .form-group {
+        margin-bottom: 1rem;
     }
-    ?>
-</div> <?php
-// Close the database connection at the very end of the script
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: bold;
+    }
+    .form-control {
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #ccc;
+        border-radius: 0.25rem;
+        box-sizing: border-box;
+    }
+    textarea.form-control {
+        resize: vertical;
+    }
+    .help-block {
+        color: #dc3545; /* Red for errors */
+        font-size: 0.875em;
+        margin-top: 0.25rem;
+        display: block;
+    }
+    .message {
+        padding: 10px;
+        margin-bottom: 20px;
+        border-radius: 5px;
+    }
+    .message.success {
+        background-color: #d4edda;
+        color: #A08AD3;
+        border: 1px solid #c3e6cb;
+    }
+    .message.error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    .message.info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+    }
+    .btn {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 0.25rem;
+        cursor: pointer;
+        font-size: 1em;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+        margin-right: 0.5rem;
+    }
+    .btn-primary {
+        background-color: #bfaaebff;
+        color: white;
+    }
+    .btn-primary:hover {
+        background-color: #b396f3ff;
+    }
+    .btn-secondary {
+        background-color: #B8AEE2;
+        color: white;
+    }
+    .btn-secondary:hover {
+        background-color: #ad99fbff;
+    }
+    .custom-file-label {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        background-color: #A08AD3;
+        color: white;
+        border-radius: 0.25rem;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    .custom-file-label:hover {
+        background-color: #8a73c3;
+    }
+    .file-input-display-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 10px;
+    }
+    .text-muted {
+        color: #6c757d !important;
+    }
+    .mt-4 {
+        margin-top: 1rem;
+    }
+
+    /* Ebook Grid Specific Styles */
+    .ebook-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .ebook-card {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .ebook-image {
+        max-width: 100%;
+        height: 200px; /* Fixed height for consistency */
+        object-fit: contain; /* Ensures image fits without cropping, maintaining aspect ratio */
+        border-radius: 4px;
+        margin-bottom: 10px;
+    }
+
+    .ebook-image-placeholder {
+        width: 100%;
+        height: 200px;
+        background-color: #f0f0f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #888;
+        border-radius: 4px;
+        margin-bottom: 10px;
+    }
+
+    .ebook-card h4 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        color: #333;
+    }
+
+    .ebook-card p {
+        font-size: 0.9em;
+        color: #555;
+        margin-bottom: 5px;
+    }
+
+    .ebook-card .btn {
+        width: calc(100% - 10px); /* Adjust for margin */
+        margin-top: 10px;
+    }
+</style>
+
+<?php
+// Tutup sambungan pangkalan data pada akhir skrip
 if (isset($conn) && $conn->ping()) {
     $conn->close();
 }
-// --- Include your existing footer ---
+// Sertakan footer sedia ada anda
 require_once 'includes/footer.php';
 ?>

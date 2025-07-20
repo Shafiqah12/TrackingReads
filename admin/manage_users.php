@@ -10,7 +10,7 @@ require_once '../includes/db_connect.php'; // Path relative to manage-users.php
 
 // Tentukan peranan yang dibenarkan untuk mengakses halaman ini
 // Hanya Admin dibenarkan mengurus pengguna.
-$allowedRoles = ['admin'];
+$allowedRoles = ['manager'];
 
 // Semak jika pengguna TIDAK log masuk ATAU TIDAK mempunyai peranan yang dibenarkan
 if (empty($_SESSION['loggedin']) || !in_array($_SESSION['user_role'], $allowedRoles)) {
