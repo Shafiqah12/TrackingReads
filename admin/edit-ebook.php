@@ -1,12 +1,12 @@
 <?php
-// admin/edit_ebook.php
+// admin/edit-ebook.php
 // Halaman ini membolehkan pentadbir, pengurus, dan kerani mengedit rekod ebook yang sedia ada.
 
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 session_start(); // Mulakan sesi
-require_once '../includes/db_connect.php'; // Laluan relatif ke admin/edit_ebook.php
+require_once '../includes/db_connect.php'; // Laluan relatif ke admin/edit-ebook.php
 
 // Tentukan peranan yang dibenarkan untuk mengakses halaman ini
 $allowedRoles = ['admin', 'manager', 'clerk']; // Admin, Manager, dan Clerk dibenarkan
@@ -110,7 +110,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ebookId && empty($errors)) {
 
     // Mengendalikan muat naik imej (bukan fail ebook umum)
     if (isset($_FILES["ebook_image"]) && $_FILES["ebook_image"]["error"] === UPLOAD_ERR_OK) {
-        $target_dir = "../images/"; // Folder untuk menyimpan fail gambar
+        // Folder untuk menyimpan fail gambar
+        // Pastikan folder ini wujud dan mempunyai kebenaran menulis yang betul
+        $target_dir = "../ebooksimage/"; 
         if (!is_dir($target_dir)) {
             mkdir($target_dir, 0777, true); // Pastikan direktori wujud
         }
@@ -167,9 +169,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $ebookId && empty($errors)) {
                 throw new Exception("Penyediaan kemas kini gagal: " . $conn->error);
             }
 
-            // String jenis bind_param: isssisiiidssi
-            // (no, penulis, tajuk, description, file_path, muka_surat, perkataan, harga_rm, genre, bulan, tahun, penerbit, ebookId)
-            $stmt_update->bind_param("isssisiiidssi", $no, $penulis, $tajuk, $description, $new_file_path,
+            // *** PEMBETULAN AKHIR UNTUK bind_param: issssiisdsisi ***
+            // Ini adalah urutan jenis yang betul untuk 13 parameter:
+            // $no (i), $penulis (s), $tajuk (s), $description (s), $new_file_path (s),
+            // $muka_surat (i), $perkataan (i), $harga_rm (d), $genre (s), $bulan (s),
+            // $tahun (i), $penerbit (s), $ebookId (i)
+            $stmt_update->bind_param("issssiisdsisi", $no, $penulis, $tajuk, $description, $new_file_path,
                                      $muka_surat, $perkataan, $harga_rm, $genre, $bulan, $tahun, $penerbit, $ebookId);
 
             if ($stmt_update->execute()) {

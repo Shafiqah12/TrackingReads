@@ -57,38 +57,36 @@ if ($conn) {
 require_once '../includes/header.php';
 ?>
 
-<div class="main-content-area">
-    <h2>Welcome, <?php echo htmlspecialchars($_SESSION["username"]); ?>!</h2>
-    <p>This is your dashboard. Here you can manage the system.</p>
-    <p>Your role: <strong><?php echo htmlspecialchars($currentUserRole); ?></strong></p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - TrackingReads</title>
+    <link rel="stylesheet" href="../css/style.css"> </head>
+<body>
+    <div class="main-content-area container">
+        <h2>Welcome, <?php echo htmlspecialchars($_SESSION["username"]); ?>!</h2>
+        <p>This is your dashboard. Here you can manage the system.</p>
+        <p>Your role: <strong><?php echo htmlspecialchars($currentUserRole); ?></strong></p>
 
-    <div class="dashboard-content">
-        <h3>Overview</h3>
-        <p>Total Registered Users: <strong><?php echo $total_users; ?></strong></p>
-        <p>Total Ebooks in Library: <strong><?php echo $total_ebooks; ?></strong></p>
-        <hr>
-        <h3>Actions</h3>
-        <div class="admin-actions-buttons">
-            <!-- Generate Report: Dibenarkan untuk Admin dan Manager -->
-            <?php if (in_array($currentUserRole, ['admin', 'manager'])): ?>
-                <a href="richest_ebooks_report.php" class="btn btn-primary">Generate Report</a>
-            <?php endif; ?>
-
-            <!-- Manage Clerk/Users: Dibenarkan untuk Admin dan Manager -->
-            <?php if (in_array($currentUserRole, ['admin', 'manager'])): ?>
-                <a href="manage_users.php" class="btn btn-primary">Manage Clerk/Users</a>
-            <?php endif; ?>
-
-            <!-- Manage Ebooks: Dibenarkan untuk Admin, Manager, dan Clerk -->
-            <?php if (in_array($currentUserRole, ['admin', 'manager', 'clerk'])): ?>
-                <a href="manage-ebook.php" class="btn btn-primary">Manage Ebooks</a>
-            <?php endif; ?>
+        <div class="dashboard-content">
+            <h3>Overview</h3>
+            <p>Total Registered Users: <strong><?php echo $total_users; ?></strong></p>
+            <p>Total Ebooks in Library: <strong><?php echo $total_ebooks; ?></strong></p>
+            <hr>
+            <h3>Actions</h3>
+            <div class="admin-actions-buttons">
+                <?php if (in_array($currentUserRole, ['admin', 'manager'])): ?>
+                    <a href="richest_ebooks_report.php" class="btn btn-primary">Generate Report</a>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
-</div>
 
-<?php
-$conn->close();
-require_once '../includes/footer.php';
-?>
-
+    <?php
+    $conn->close();
+    require_once '../includes/footer.php';
+    ?>
+    <script src="../js/script.js"></script> </body>
+</html>

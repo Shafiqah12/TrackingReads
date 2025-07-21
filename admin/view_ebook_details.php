@@ -1,12 +1,12 @@
 <?php
-// admin/view_ebook_details.php
-// Halaman ini membolehkan pentadbir, pengurus, dan kerani melihat butiran ebook.
+// admin/view-ebook-details.php
+// Halaman ini memaparkan butiran lengkap ebook.
 
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-session_start(); // Mulakan sesi
-require_once '../includes/db_connect.php'; // Laluan relatif ke admin/view_ebook_details.php
+session_start();
+require_once '../includes/db_connect.php'; // Laluan relatif ke admin/view-ebook-details.php
 
 // Tentukan peranan yang dibenarkan untuk mengakses halaman ini
 $allowedRoles = ['admin', 'manager', 'clerk'];
@@ -17,274 +17,303 @@ if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !in_array
     exit;
 }
 
-// Mulakan pembolehubah untuk data ebook dan mesej ralat
-$ebook = []; // Untuk menyimpan data ebook yang diambil
-$errors = [];
-$ebookId = null;
+$ebook = null;
+$errorMessage = null;
 
-// --- 1. Dapatkan ID Ebook dari URL ---
+// Semak jika ID ebook disediakan dalam URL
 if (isset($_GET['id']) && !empty(trim($_GET['id']))) {
     $ebookId = filter_var(trim($_GET['id']), FILTER_SANITIZE_NUMBER_INT);
 
     if (!is_numeric($ebookId) || $ebookId <= 0) {
-        $errors['id'] = 'ID ebook tidak sah disediakan.';
-        $ebookId = null; // Batalkan ID jika tidak sah
+        $errorMessage = 'ID ebook tidak sah disediakan.';
     }
 } else {
-    $errors['id'] = 'Tiada ID ebook ditentukan untuk dilihat.';
+    $errorMessage = 'Tiada ID ebook ditentukan untuk dilihat.';
 }
 
-// --- 2. Ambil Data Ebook (jika ID sah) ---
-if ($ebookId && empty($errors)) {
-    // Pilih semua kolum yang diperlukan dari jadual ebooks, serta username uploader
-    $sql_fetch = "SELECT e.id, e.no, e.penulis, e.tajuk, e.description, e.file_path,
-                             e.muka_surat, e.perkataan, e.harga_rm, e.genre, e.bulan, e.tahun, e.penerbit,
-                             u.username AS uploaded_by_username, e.created_at
-                     FROM ebooks e
-                     LEFT JOIN users u ON e.uploaded_by = u.id
-                     WHERE e.id = ?";
-    if ($stmt_fetch = $conn->prepare($sql_fetch)) {
-        $stmt_fetch->bind_param("i", $ebookId);
-        $stmt_fetch->execute();
-        $result_fetch = $stmt_fetch->get_result();
+// Jika ID sah, ambil butiran ebook dari pangkalan data
+if (empty($errorMessage)) {
+    try {
+        $sql_fetch_ebook = "SELECT e.id, e.no, e.penulis, e.tajuk, e.description, e.file_path,
+                                 e.muka_surat, e.perkataan, e.harga_rm, e.genre, e.bulan, e.tahun, e.penerbit,
+                                 u.username AS uploaded_by_username, e.created_at
+                           FROM ebooks e
+                           LEFT JOIN users u ON e.uploaded_by = u.id
+                           WHERE e.id = ?";
 
-        if ($result_fetch->num_rows === 1) {
-            $ebook = $result_fetch->fetch_assoc();
-            // Assign fetched data to variables for easier use in HTML
-            $no          = htmlspecialchars($ebook['no'] ?? '');
-            $penulis     = htmlspecialchars($ebook['penulis'] ?? '');
-            $tajuk       = htmlspecialchars($ebook['tajuk'] ?? '');
-            $description = htmlspecialchars($ebook['description'] ?? '');
-            $file_path   = htmlspecialchars($ebook['file_path'] ?? ''); // Full path
-            $muka_surat  = htmlspecialchars($ebook['muka_surat'] ?? '');
-            $perkataan   = htmlspecialchars($ebook['perkataan'] ?? '');
-            $harga_rm    = htmlspecialchars(number_format($ebook['harga_rm'] ?? 0, 2)); // Format to 2 decimal places
-            $genre       = htmlspecialchars($ebook['genre'] ?? '');
-            $bulan       = htmlspecialchars($ebook['bulan'] ?? '');
-            $tahun       = htmlspecialchars($ebook['tahun'] ?? '');
-            $penerbit    = htmlspecialchars($ebook['penerbit'] ?? '');
-            $uploaded_by_username = htmlspecialchars($ebook['uploaded_by_username'] ?? 'Unknown');
-            $created_at_display = htmlspecialchars($ebook['created_at'] ?? 'N/A');
+        if ($stmt_fetch_ebook = $conn->prepare($sql_fetch_ebook)) {
+            $stmt_fetch_ebook->bind_param("i", $ebookId);
+            $stmt_fetch_ebook->execute();
+            $result_ebook = $stmt_fetch_ebook->get_result();
 
+            if ($result_ebook->num_rows === 1) {
+                $ebook = $result_ebook->fetch_assoc();
+            } else {
+                $errorMessage = "Ebook tidak ditemui dengan ID " . htmlspecialchars($ebookId) . ".";
+            }
+            $stmt_fetch_ebook->close();
         } else {
-            $errors['fetch'] = 'Ebook tidak ditemui dengan ID yang ditentukan.';
-            $ebookId = null; // Batalkan ID jika tidak ditemui
+            $errorMessage = "Ralat pangkalan data menyediakan pernyataan: " . htmlspecialchars($conn->error);
         }
-        $stmt_fetch->close();
-    } else {
-        $errors['db_fetch'] = 'Ralat pangkalan data menyediakan pernyataan pengambilan: ' . htmlspecialchars($conn->error);
+    } catch (Exception $e) {
+        $errorMessage = "Ralat mengambil data ebook: " . htmlspecialchars($e->getMessage());
     }
 }
 
-// Sertakan header sedia ada anda
 require_once '../includes/header.php';
 ?>
 
 <div class="main-content-area">
     <div class="auth-container">
-        <h2>Ebook Details (ID: <?= htmlspecialchars($ebookId ?? 'N/A'); ?>)</h2>
-        <p>View the comprehensive details of this ebook.</p>
+        <h2>Ebook Details</h2>
+        <p>Detailed information about the ebook.</p>
 
-        <?php if (!empty($errors)): ?>
-            <div class="message error">
-                <h3>Sila betulkan ralat berikut:</h3>
-                <ul>
-                    <?php foreach ($errors as $field => $msg): ?>
-                        <li><?= htmlspecialchars($msg) ?></li>
-                    <?php endforeach; ?>
-                </ul>
-                <p>Sila kembali ke <a href="manage-ebook.php">Urus Ebook</a>.</p>
-            </div>
-        <?php elseif (empty($ebook)): ?>
-             <div class="message info">
-                <p>Ebook tidak ditemui atau tiada ID ditentukan. Sila kembali ke <a href="manage-ebook.php">Urus Ebook</a> untuk memilih ebook.</p>
-            </div>
-        <?php else: ?>
+        <?php if ($errorMessage): ?>
+            <div class="message error"><?= $errorMessage ?></div>
+            <p class="text-center"><a href="manage-ebook.php" class="btn btn-secondary">Back to Manage Ebooks</a></p>
+        <?php elseif ($ebook): ?>
             <div class="ebook-details-card">
-                <div class="detail-row">
-                    <span class="detail-label">Image:</span>
-                    <span class="detail-value">
-                        <?php if ($file_path): ?>
-                            <?php
-                            // Determine if the file_path is an image or a document
-                            $file_extension = strtolower(pathinfo($file_path, PATHINFO_EXTENSION));
-                            $image_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-                            ?>
-                            <?php if (in_array($file_extension, $image_extensions)): ?>
-                                <img src="<?= $file_path; ?>" alt="Ebook Image" class="ebook-detail-image">
-                            <?php else: ?>
-                                <p>No image uploaded for this ebook, but a document file exists.</p>
-                            <?php endif; ?>
-                        <?php else: ?>
-                            <p>No image uploaded for this ebook.</p>
-                        <?php endif; ?>
-                    </span>
-                </div>
+                <div class="ebook-image-container">
+                    <?php 
+                    $image_src_path = ''; // Path for the <img> tag (browser URL)
+                    $file_exists_on_server = false; // Flag to check if file exists on server
 
-                <div class="detail-row">
-                    <span class="detail-label">NO:</span>
-                    <span class="detail-value"><?= $no ?></span>
+                    if (!empty($ebook['file_path'])) {
+                        $image_src_path = htmlspecialchars($ebook['file_path']); 
+                        
+                        // Construct the absolute path for PHP's file_exists() check
+                        // Convert all forward slashes to backslashes for Windows file system check
+                        // Use DIRECTORY_SEPARATOR for cross-platform compatibility
+                        $normalized_file_path = str_replace('/', DIRECTORY_SEPARATOR, str_replace('../', '', $ebook['file_path']));
+                        $absolute_file_path = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . 'TrackingReads' . DIRECTORY_SEPARATOR . $normalized_file_path;
+                        
+                        // Check if the file actually exists on the server's file system
+                        if (file_exists($absolute_file_path)) {
+                            $file_exists_on_server = true;
+                        } else {
+                            // Log the path PHP is checking if it fails, for further debugging
+                            error_log("File NOT found at (absolute): " . $absolute_file_path);
+                        }
+                    }
+                    ?>
+                    <?php if (!empty($image_src_path) && $file_exists_on_server): ?>
+                        <img src="<?= $image_src_path; ?>" alt="Ebook Image" class="ebook-detail-image">
+                    <?php else: ?>
+                        <div class="no-image-placeholder">No Image Available</div>
+                    <?php endif; ?>
                 </div>
-                <div class="detail-row">
-                    <span class="detail-label">Penulis (Author):</span>
-                    <span class="detail-value"><?= $penulis ?></span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Tajuk (Title):</span>
-                    <span class="detail-value"><?= $tajuk ?></span>
-                </div>
-                <div class="detail-row detail-description">
-                    <span class="detail-label">Description:</span>
-                    <span class="detail-value"><?= !empty($description) ? nl2br($description) : 'N/A' ?></span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">File:</span>
-                    <span class="detail-value">
-                        <?php if ($file_path): ?>
-                            <a href="<?= $file_path; ?>" target="_blank" class="file-link">
-                                <i class="fas fa-file-alt"></i> <?= basename($file_path); ?>
-                            </a>
-                        <?php else: ?>
-                            N/A
-                        <?php endif; ?>
-                    </span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Muka Surat (Pages):</span>
-                    <span class="detail-value"><?= !empty($muka_surat) ? $muka_surat : 'N/A' ?></span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Perkataan (Words):</span>
-                    <span class="detail-value"><?= !empty($perkataan) ? $perkataan : 'N/A' ?></span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Harga (RM):</span>
-                    <span class="detail-value">RM <?= $harga_rm ?></span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Genre:</span>
-                    <span class="detail-value"><?= !empty($genre) ? $genre : 'N/A' ?></span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Bulan (Month):</span>
-                    <span class="detail-value"><?= !empty($bulan) ? $bulan : 'N/A' ?></span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Tahun (Year):</span>
-                    <span class="detail-value"><?= !empty($tahun) ? $tahun : 'N/A' ?></span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Penerbit (Publisher):</span>
-                    <span class="detail-value"><?= !empty($penerbit) ? $penerbit : 'N/A' ?></span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Uploaded By:</span>
-                    <span class="detail-value"><?= $uploaded_by_username ?></span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Created At:</span>
-                    <span class="detail-value"><?= $created_at_display ?></span>
+                
+                <div class="ebook-info-grid">
+                    <div class="grid-label">ID</div>
+                    <div class="grid-colon">:</div>
+                    <div class="grid-value"><?= htmlspecialchars($ebook['id'] ?? 'N/A') ?></div>
+
+                    <div class="grid-label">NO</div>
+                    <div class="grid-colon">:</div>
+                    <div class="grid-value"><?= htmlspecialchars($ebook['no'] ?? 'N/A') ?></div>
+
+                    <div class="grid-label">Tajuk (Title)</div>
+                    <div class="grid-colon">:</div>
+                    <div class="grid-value"><?= htmlspecialchars($ebook['tajuk'] ?? 'N/A') ?></div>
+
+                    <div class="grid-label">Penulis (Author)</div>
+                    <div class="grid-colon">:</div>
+                    <div class="grid-value"><?= htmlspecialchars($ebook['penulis'] ?? 'N/A') ?></div>
+
+                    <div class="grid-label">Penerbit (Publisher)</div>
+                    <div class="grid-colon">:</div>
+                    <div class="grid-value"><?= htmlspecialchars($ebook['penerbit'] ?? 'N/A') ?></div>
+
+                    <div class="grid-label">Harga (RM)</div>
+                    <div class="grid-colon">:</div>
+                    <div class="grid-value"><?= htmlspecialchars(number_format($ebook['harga_rm'] ?? 0, 2)) ?></div>
+
+                    <div class="grid-label">Muka Surat (Pages)</div>
+                    <div class="grid-colon">:</div>
+                    <div class="grid-value"><?= htmlspecialchars($ebook['muka_surat'] ?? 'N/A') ?></div>
+
+                    <div class="grid-label">Perkataan (Words)</div>
+                    <div class="grid-colon">:</div>
+                    <div class="grid-value"><?= htmlspecialchars($ebook['perkataan'] ?? 'N/A') ?></div>
+
+                    <div class="grid-label">Genre</div>
+                    <div class="grid-colon">:</div>
+                    <div class="grid-value"><?= htmlspecialchars($ebook['genre'] ?? 'N/A') ?></div>
+
+                    <div class="grid-label">Bulan (Month)</div>
+                    <div class="grid-colon">:</div>
+                    <div class="grid-value"><?= htmlspecialchars($ebook['bulan'] ?? 'N/A') ?></div>
+
+                    <div class="grid-label">Tahun (Year)</div>
+                    <div class="grid-colon">:</div>
+                    <div class="grid-value"><?= htmlspecialchars($ebook['tahun'] ?? 'N/A') ?></div>
+
+                    <div class="grid-label">Uploaded By</div>
+                    <div class="grid-colon">:</div>
+                    <div class="grid-value"><?= htmlspecialchars($ebook['uploaded_by_username'] ?? 'Unknown') ?></div>
+
+                    <div class="grid-label">Created At</div>
+                    <div class="grid-colon">:</div>
+                    <div class="grid-value"><?= htmlspecialchars($ebook['created_at'] ?? 'N/A') ?></div>
+                </div> <!-- /ebook-info-grid -->
+                <h3 class="description-heading">Description:</h3>
+                <div class="ebook-description-box">
+                    <?= nl2br(htmlspecialchars($ebook['description'] ?? 'No description provided.')) ?>
                 </div>
             </div>
-            <div class="mt-4">
+            <div class="mt-4 text-center">
                 <a href="manage-ebook.php" class="btn btn-secondary">Back to Manage Ebooks</a>
-                <!-- Optional: Link to edit the ebook, only for Admin/Manager -->
-                <?php if (in_array($_SESSION['user_role'], ['admin', 'manager'])): ?>
-                    <a href="edit-ebook.php?id=<?= $ebookId ?>" class="btn btn-primary">Edit Ebook</a>
-                <?php endif; ?>
             </div>
         <?php endif; ?>
     </div>
 </div>
 
 <style>
-    /* Reusing existing styles for form-group, message, btn, etc. */
+    /* Styles for this specific page, placed here to ensure they apply */
+    body, html {
+        /* Remove any global text-align that might be centering things */
+        text-align: initial; 
+    }
+
     .main-content-area {
         padding: 20px;
-        max-width: 900px;
-        margin: 20px auto;
-        background-color: #f9f9f9;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        max-width: 1200px;
+        margin: 0 auto;
     }
 
     .auth-container {
-        padding: 20px;
-        background-color: #fff;
-        border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+        text-align: left !important; /* THIS IS THE KEY FIX for description text alignment */
     }
 
     h2 {
-        color: #333;
-        margin-bottom: 10px;
+        color: #A08AD3;
+        text-align: center;
+        margin-bottom: 15px;
+        font-size: 2em;
     }
 
     p {
-        color: #666;
+        /* This paragraph is the "Detailed information about the ebook." below the title.
+           Keep it centered as per previous screenshots. */
+        text-align: center; 
         margin-bottom: 20px;
+        color: #666;
     }
 
     .ebook-details-card {
-        background-color: #f0f0f0;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
+        display: flex;
+        flex-direction: column; /* Image always on top of info */
+        align-items: center; /* Center image and info horizontally */
+        gap: 20px; /* Space between image and info section */
+        background-color: #fff;
         padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         margin-top: 20px;
     }
-
-    .detail-row {
+    
+    .ebook-image-container {
+        flex-shrink: 0;
+        width: 100%;
+        max-width: 250px; /* Control image container width */
         display: flex;
-        flex-wrap: wrap; /* Allows wrapping on smaller screens */
-        margin-bottom: 10px;
-        align-items: baseline;
+        justify-content: center;
+        align-items: center;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        overflow: hidden;
+        background-color: #f9f9f9;
+        min-height: 200px;
     }
-
-    .detail-label {
-        font-weight: bold;
-        color: #555;
-        flex: 0 0 150px; /* Fixed width for labels */
-        margin-right: 15px;
-    }
-
-    .detail-value {
-        flex: 1; /* Takes remaining space */
-        color: #333;
-    }
-
-    .detail-description .detail-value {
-        white-space: pre-wrap; /* Preserves line breaks in description */
-    }
-
     .ebook-detail-image {
-        max-width: 250px;
+        max-width: 100%;
         height: auto;
+        display: block;
         border-radius: 5px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        margin-top: 5px;
+    }
+    .no-image-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #888;
+        font-style: italic;
+        background-color: #f0f0f0;
+        text-align: center;
+        padding: 20px;
+    }
+
+    /* Grid Layout for Ebook Info to ensure perfect alignment */
+    .ebook-info-grid {
+        display: grid;
+        /* Three columns: label (auto-width), colon (fixed width), value (takes remaining space) */
+        grid-template-columns: max-content max-content 1fr; 
+        gap: 8px 5px; /* Row gap, Column gap (reduced gap between colon and value) */
+        width: 100%; /* Take full width of its parent */
+        max-width: 600px; /* Max width for the info grid itself */
+        margin-top: 15px; /* Space between image and info grid */
+    }
+
+    .grid-label {
+        font-weight: bold; /* Labels are bold */
+        color: #555;
+        text-align: left; /* Align labels to the left within their cell */
+    }
+
+    .grid-colon {
+        font-weight: bold; /* Make colon bold too for consistency with label */
+        color: #555;
+        text-align: center; /* Center the colon within its small column */
+    }
+
+    .grid-value {
+        color: #333;
+        word-wrap: break-word; /* Ensure long values wrap */
+        text-align: left; /* Align values to the left within their cell */
+    }
+
+    .description-heading {
+        text-align: left;
+        margin-top: 20px;
         margin-bottom: 10px;
+        font-weight: bold; /* Keep description heading bold */
+        color: #555;
+        font-size: 1.2em;
+        width: 100%;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
     }
 
-    .file-link {
-        color: #A08AD3;
-        text-decoration: none;
-        font-weight: bold;
+    .ebook-description-box {
+        background-color: #f8f8f8;
+        border: 1px solid #e0e0e0;
+        border-radius: 5px;
+        padding: 15px;
+        margin-top: 10px; 
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        color: #444;
+        width: 100%;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: left !important; /* THIS IS THE KEY FIX for description text alignment */
     }
 
-    .file-link:hover {
-        text-decoration: underline;
+    .text-center {
+        text-align: center;
     }
-
-    /* Font Awesome icon for file */
-    .fas.fa-file-alt {
-        margin-right: 5px;
-    }
-
     .mt-4 {
-        margin-top: 1rem;
+        margin-top: 1.5rem;
     }
-
-    /* Ensure buttons are styled correctly from previous CSS */
+    /* Re-using existing button styles */
     .btn {
         padding: 0.5rem 1rem;
         border: none;
@@ -320,25 +349,6 @@ require_once '../includes/header.php';
         color: #721c24;
         border: 1px solid #f5c6cb;
     }
-    .message.info {
-        background-color: #d1ecf1;
-        color: #0c5460;
-        border: 1px solid #bee5eb;
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-        .detail-row {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        .detail-label {
-            flex: none;
-            width: auto;
-            margin-right: 0;
-            margin-bottom: 5px;
-        }
-    }
 </style>
 
 <?php
@@ -346,6 +356,5 @@ require_once '../includes/header.php';
 if (isset($conn) && $conn->ping()) {
     $conn->close();
 }
-// Sertakan footer sedia ada anda
 require_once '../includes/footer.php';
 ?>

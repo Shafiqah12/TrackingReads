@@ -15,4 +15,4 @@ try {
 } catch (Exception $e) {
     error_log("db_connect.php connection error: " . $e->getMessage());
 }
-// No closing ?> tag here!
+// No closing 
