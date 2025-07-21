@@ -184,13 +184,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_review'])) {
 // --- Fetch Ebook Details (after any action) ---
 if ($ebook_id > 0 && $conn) {
     $sql_fetch_ebook = "SELECT e.id, e.no, e.tajuk AS title, e.description, e.harga_rm AS price, e.file_path,
-                               e.penulis, e.muka_surat, e.perkataan, e.genre, e.bulan, e.tahun, e.penerbit,
-                               u.username AS uploaded_by_username, e.created_at,
-                               (SELECT COUNT(*) FROM wishlist w WHERE w.user_id = ? AND w.ebook_id = e.id) AS is_in_wishlist,
-                               (SELECT COUNT(*) FROM read_status rs WHERE rs.user_id = ? AND rs.ebook_id = e.id) AS is_read
-                        FROM ebooks e
-                        LEFT JOIN users u ON e.uploaded_by = u.id -- Use LEFT JOIN in case uploaded_by is NULL or invalid
-                        WHERE e.id = ?";
+                                  e.penulis, e.muka_surat, e.perkataan, e.genre, e.bulan, e.tahun, e.penerbit,
+                                  u.username AS uploaded_by_username, e.created_at,
+                                  (SELECT COUNT(*) FROM wishlist w WHERE w.user_id = ? AND w.ebook_id = e.id) AS is_in_wishlist,
+                                  (SELECT COUNT(*) FROM read_status rs WHERE rs.user_id = ? AND rs.ebook_id = e.id) AS is_read
+                          FROM ebooks e
+                          JOIN users u ON e.uploaded_by = u.id
+                          WHERE e.id = ?";
 
     if ($stmt_ebook = $conn->prepare($sql_fetch_ebook)) {
         $stmt_ebook->bind_param("iii", $user_id, $user_id, $ebook_id);
@@ -210,10 +210,10 @@ if ($ebook_id > 0 && $conn) {
 
     // --- Fetch Reviews for this Ebook ---
     $sql_fetch_reviews = "SELECT r.rating, r.review_text, r.created_at, u.username
-                          FROM reviews r
-                          JOIN users u ON r.user_id = u.id
-                          WHERE r.ebook_id = ?
-                          ORDER BY r.created_at DESC";
+                              FROM reviews r
+                              JOIN users u ON r.user_id = u.id
+                              WHERE r.ebook_id = ?
+                              ORDER BY r.created_at DESC";
 
     if ($stmt_reviews = $conn->prepare($sql_fetch_reviews)) {
         $stmt_reviews->bind_param("i", $ebook_id);
@@ -266,12 +266,6 @@ require_once 'includes/header.php';
 <div class="container ebook-detail-container">
     <a href="javascript:history.back()" class="back-arrow-button" title="Back to previous page"><i class="fas fa-arrow-left"></i></a>
 
-    <?php if ($status_message): // Display status messages from actions ?>
-        <div class="message <?= $status_type === 'success' ? 'success' : 'error'; ?>">
-            <?= $status_message; ?>
-        </div>
-    <?php endif; ?>
-
     <?php if ($ebook): ?>
         <h2 class="text-3xl font-bold text-gray-800 mb-4"><?= htmlspecialchars($ebook['title'] ?? 'N/A'); ?></h2>
         <p class="text-gray-600 mb-2"><strong>NO:</strong> <?= htmlspecialchars($ebook['no'] ?? 'N/A'); ?></p>
@@ -313,17 +307,22 @@ require_once 'includes/header.php';
 
         <hr class="my-4 border-gray-300">
 
-        <h3 class="text-2xl font-bold text-gray-800 mt-8 mb-4">Ratings & Reviews (Average: <?= $average_rating ?> / 5)</h3>
-        
-        <!-- Form for submitting a new review/rating -->
-        <div class="review-form bg-white p-6 rounded-lg shadow-md mb-8">
-            <h4 class="text-xl font-semibold mb-4"><?= $user_has_reviewed ? 'Update Your Review' : 'Submit Your Review'; ?></h4>
-            <form action="ebook_detail.php?id=<?= htmlspecialchars($ebook_id); ?>" method="POST">
-                <input type="hidden" name="ebook_id" value="<?= htmlspecialchars($ebook_id); ?>">
+        <h3>Ratings & Reviews (Average: <?php echo $average_rating; ?> / 5)</h3>
+
+        <?php if ($status_message): ?>
+            <div class="message <?php echo $status_type === 'success' ? 'success' : 'error'; ?>">
+                <?php echo $status_message; ?>
+            </div>
+        <?php endif; ?>
+
+        <div class="rating-review-section">
+            <h4><?php echo $user_has_reviewed ? 'Update Your Review' : 'Submit Your Review'; ?></h4>
+            <form action="submit_review.php" method="POST">
+                <input type="hidden" name="ebook_id" value="<?php echo htmlspecialchars($ebook_id); ?>">
                 
-                <div class="form-group mb-4">
-                    <label for="rating" class="block text-gray-700 text-sm font-bold mb-2">Your Rating (1-5):</label>
-                    <div class="star-rating" data-rating="<?= htmlspecialchars($user_review_rating ?? 0); ?>">
+                <div class="form-group mb-3">
+                    <label for="rating">Your Rating:</label>
+                    <div class="star-rating" data-rating="<?php echo htmlspecialchars($user_review_rating ?? 0); ?>">
                         <span class="star-rating-star" data-value="1">&#9733;</span>
                         <span class="star-rating-star" data-value="2">&#9733;</span>
                         <span class="star-rating-star" data-value="3">&#9733;</span>
@@ -338,15 +337,27 @@ require_once 'includes/header.php';
                     <textarea name="review_text" id="review_text" rows="5" class="form-control shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" placeholder="Write your review here..."><?= htmlspecialchars($user_review_text ?? ''); ?></textarea>
                 </div>
                 
-                <button type="submit" name="submit_review" class="btn btn-primary"><?= $user_has_reviewed ? 'Update Review' : 'Submit Review'; ?></button>
+                <button type="submit" class="btn btn-primary"><?php echo $user_has_reviewed ? 'Update Review' : 'Submit Review'; ?></button>
             </form>
-        </div>
 
-        <!-- Display existing reviews -->
-        <div class="existing-reviews">
-            <h4 class="text-xl font-semibold mb-4">User Reviews (<?= count($reviews) ?>)</h4>
-            <?php if (empty($reviews)): ?>
-                <p class="text-gray-600">No reviews yet for this ebook. Be the first to review!</p>
+            <h4 class="mt-5">All Reviews:</h4>
+            <?php if (!empty($reviews)): ?>
+                <div class="all-reviews-list">
+                    <?php foreach ($reviews as $review): ?>
+                        <div class="review-item mb-3 p-3 border rounded">
+                            <p><strong><?php echo htmlspecialchars($review['username']); ?></strong> rated: 
+                                <?php for ($i = 1; $i <= 5; $i++): ?>
+                                    <span class="star <?php echo ($i <= $review['rating']) ? 'filled' : ''; ?>">&#9733;</span>
+                                <?php endfor; ?>
+                                (<?php echo htmlspecialchars($review['rating']); ?>/5)
+                            </p>
+                            <?php if (!empty($review['review_text'])): ?>
+                                <p><?php echo nl2br(htmlspecialchars($review['review_text'])); ?></p>
+                            <?php endif; ?>
+                            <small class="text-muted">Reviewed on: <?php echo htmlspecialchars(date("F j, Y", strtotime($review['created_at']))); ?></small>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
             <?php else: ?>
                 <?php foreach ($reviews as $review): ?>
                     <div class="review-item bg-white p-4 rounded-lg shadow-sm mb-4 border-l-4 border-purple-500">
@@ -564,53 +575,78 @@ textarea.form-control {
     padding-top: 50px;
 }
 
-.back-arrow-button {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: #A08AD3;
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 1.2em;
-    text-decoration: none;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    transition: background-color 0.3s ease;
-    z-index: 10;
-}
+    .back-arrow-button {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #A08AD3;
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.2em;
+        text-decoration: none;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        transition: background-color 0.3s ease;
+        z-index: 10;
+    }
 
-.back-arrow-button:hover {
-    background-color: #A08AD3;
-}
-
-/* Review item styling */
-.review-item {
-    background-color: #f9f9f9;
-    border: 1px solid #e0e0e0;
-    padding: 15px;
-    margin-bottom: 15px;
-    border-radius: 8px;
-}
-.review-item p {
-    margin-bottom: 5px;
-}
-.review-item .font-semibold {
-    font-weight: 600;
-}
-.review-item .text-gray-500 {
-    color: #6b7280;
-}
-.review-item .text-sm {
-    font-size: 0.875rem;
-}
-.review-item .text-yellow-500 {
-    color: #f59e0b;
-}
-.review-item .fa-star, .review-item .far.fa-star {
-    font-size: 1em; /* Adjust star size within reviews */
-}
+    .back-arrow-button:hover {
+        background-color: #A08AD3;
+    }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ratingContainer = document.querySelector('.star-rating');
+        const hiddenInput = document.getElementById('rating_input');
+        const stars = Array.from(ratingContainer.querySelectorAll('.star-rating-star')); // Convert NodeList to Array
+        let currentRating = parseInt(ratingContainer.dataset.rating) || 0;
+
+        // Function to update star display based on a given rating
+        function updateStars(rating) {
+            stars.forEach((star, index) => {
+                if (index < rating) { // Fill stars from left up to the rating
+                    star.style.color = 'gold';
+                } else {
+                    star.style.color = '#ccc';
+                }
+            });
+        }
+
+        // Initialize stars based on existing user rating
+        if (currentRating > 0) {
+            updateStars(currentRating);
+        } else {
+            // Ensure all stars are initially unfilled if no rating
+            updateStars(0);
+        }
+
+        // Mouseover (hover) effect
+        ratingContainer.addEventListener('mouseover', function(e) {
+            if (e.target.classList.contains('star-rating-star')) {
+                const hoverValue = parseInt(e.target.dataset.value);
+                updateStars(hoverValue);
+            }
+        });
+
+        // Mouseout (reset) effect
+        ratingContainer.addEventListener('mouseout', function() {
+            // Reset to the currently selected rating, or 0 if none
+            updateStars(currentRating);
+        });
+
+        // Click (select) effect
+        ratingContainer.addEventListener('click', function(e) {
+            if (e.target.classList.contains('star-rating-star')) {
+                const clickedValue = parseInt(e.target.dataset.value);
+                currentRating = clickedValue; // Update currentRating
+                hiddenInput.value = currentRating; // Set hidden input value
+                updateStars(currentRating); // Update display
+            }
+        });
+    });
+</script>
