@@ -1,415 +1,359 @@
-/* MODIFIED: Google Fonts for a softer, more modern look */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Quicksand:wght@400;500;600;700&display=swap');
+/* TrackingReads/style.css */
 
-/* Define CSS Variables for easier theme management - MODIFIED FOR VIBRANT PASTEL LAVENDER */
+/* Custom CSS Variables */
 :root {
-    --header-vibrant-pastel: #A08AD3; /* MODIFIED: Vibrant but still pastel lilac for header */
-    --primary-pastel-lavender: #D4C9EC; /* Soft, light pastel lavender for primary accents */
-    --secondary-pastel-lavender: #B8AEE2; /* Slightly deeper, more saturated pastel lavender for stronger accents and hovers */
-    --text-dark-neutral: #5A526A; /* MODIFIED: Renamed to clarify its role for text, soft deep purplish-grey */
-    --secondary-neutral-warm: #D6C7A7; /* Soft, warm tan/light brown for subtle details */
-    --light-background: #F7F2F9; /* MODIFIED: Very soft, almost white, hint of purple for body background */
-    --card-background: #FFFFFF; /* Pure white for specific card/form backgrounds */
-    --border-light: #E9E3F3; /* Very pale, muted lavender-grey for subtle borders */
-    --danger-pastel-rose: #E3C9CC; /* Soft, muted pastel rose for danger actions (like remove) */
+    --primary-pastel-lavender: #b1a7d6; /* Example: pastel purple for primary actions */
+    --secondary-pastel-blue: #a7d9d6; /* Example: light blue for secondary actions */
+    --header-vibrant-pastel: #8d7ecb; /* Example: A slightly darker, vibrant purple for header */
+    --text-dark: #333;
+    --text-light: #f4f4f4;
+    --border-light: #ccc;
+    --background-light: #f4f4f4;
+    --background-dark: #222;
+
+    /* Additional variables from your provided CSS snippets */
+    --card-background: #ffffff;
+    --text-dark-neutral: #4a4a4a; /* A soft deep purplish-grey, more neutral than pure black */
+    --secondary-pastel-lavender: #9287c2; /* Deeper pastel lavender for hover states */
+    --secondary-neutral-warm: #D4C7A7; /* Soft Warm Tan for warning/secondary elements */
+    --danger-pastel-rose: #E3C9CC; /* Soft, muted pastel rose for danger */
+    --light-background: #fcfbf8; /* Very light cream/off-white */
+    --primary-sepia: #5C4033; /* Deep sepia for headings in new sections */
+    --light-border: #E0E0E0; /* Light gray border */
+    --very-light-sepia-bg: #FDFBF8; /* Very light cream/off-white background */
+    --dark-text: #4a4a4a; /* Same as text-dark-neutral */
+    --medium-text: #826E65; /* Medium sepia text */
+    --pale-sepia: #D6C7B1; /* Pale sepia for borders */
 }
 
-/* Basic Reset and Body Styling */
+/* Base Styles */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-html {
-    scroll-behavior: smooth;
-}
-
 body {
-    font-family: 'Poppins', sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: var(--light-background); /* MODIFIED: Soft purple background */
-    color: var(--text-dark-neutral); /* MODIFIED: Soft deep purplish-grey for text */
+    font-family: Arial, sans-serif;
     line-height: 1.6;
-    padding-top: 60px; /* Space for fixed header */
+    color: var(--text-dark);
+    background-color: var(--background-light);
+    margin-top: 60px; /* Offset for fixed header height */
 }
 
-/* Header and Navigation */
+a {
+    text-decoration: none;
+    color: var(--primary-pastel-lavender);
+}
+
+a:hover {
+    color: var(--secondary-pastel-blue);
+}
+
+ul {
+    list-style: none;
+}
+
+/* Header Styles */
 header {
-    background-color: var(--header-vibrant-pastel); /* MODIFIED: Vibrant pastel lilac for header */
-    color: #fff; /* MODIFIED: White text for header */
+    background-color: var(--header-vibrant-pastel);
+    color: var(--text-light);
     padding: 1rem 0;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    position: fixed;
+    position: fixed; /* Header kekal di atas */
     width: 100%;
     top: 0;
     left: 0;
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    z-index: 1000; /* Pastikan header di atas elemen lain */
 }
 
+/* Navigasi Utama */
 nav {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
-    width: 100%;
+    justify-content: space-between; /* Untuk meletakkan elemen di hujung yang berlainan */
+    align-items: center; /* Untuk menegak elemen di tengah */
+    max-width: 1200px; /* Maksimum lebar kandungan nav */
+    margin: 0 auto; /* Tengah nav dalam header */
+    padding: 0 20px; /* Padding sisi */
+    height: 60px; /* Tinggi nav */
 }
 
 .logo a {
-    color: #fff;
-    text-decoration: none;
+    color: var(--text-light);
     font-size: 1.8rem;
     font-weight: bold;
-    display: flex;
-    align-items: center;
+    letter-spacing: 1px;
+    text-transform: uppercase;
 }
 
-.header-logo {
-    height: 50px;
-    width: auto;
-    vertical-align: middle;
-    margin-right: 10px;
-}
-
-.nav-links {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: none;
-    flex-direction: column;
-    position: absolute;
-    top: 60px;
-    left: 0;
-    width: 100%;
-    background-color: var(--header-vibrant-pastel); /* MODIFIED: Vibrant pastel lilac for mobile menu */
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-    z-index: 990;
-    overflow-y: auto;
-    max-height: calc(100vh - 60px);
-}
-
-.nav-links.active {
-    display: flex;
-}
-
-.nav-links li {
-    text-align: center;
-    margin: 0;
-    padding: 15px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.nav-links li:last-child {
-    border-bottom: none;
-}
-
-.nav-links a {
-    color: #fff;
-    text-decoration: none;
-    font-weight: 500;
-    transition: color 0.3s ease;
-    padding-bottom: 5px;
-    position: relative;
-}
-
-.nav-links a:hover {
-    color: var(--primary-pastel-lavender); /* MODIFIED: Primary Pastel Lavender on hover (contrasts nicely with white nav text) */
-}
-
-.nav-links a::after {
-    content: none;
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 3px;
-    background-color: var(--primary-pastel-lavender); /* MODIFIED: Primary Pastel Lavender for border */
-    transition: width 0.3s ease;
-    border-radius: 5px;
-}
-
-.nav-links a:hover::after,
-.nav-links a.active::after {
-    width: 70%;
-}
-
-/* --- HAMBURGER MENU ICON --- */
+/* Hamburger Menu (untuk mobile) */
 .hamburger-menu {
-    display: flex;
+    display: none; /* Sembunyikan secara lalai pada desktop */
     flex-direction: column;
     justify-content: space-around;
     width: 30px;
-    height: 25px;
+    height: 20px;
     background: transparent;
     border: none;
     cursor: pointer;
     padding: 0;
-    z-index: 1001;
+    z-index: 1100; /* Di atas nav-links untuk klik */
 }
 
 .hamburger-menu .line {
     width: 100%;
     height: 3px;
-    background-color: #fff;
-    border-radius: 2px;
-    transition: all 0.3s ease;
+    background-color: var(--text-light);
+    border-radius: 10px;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Animasi Hamburger (Optional) */
+.hamburger-menu.active .line:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
 }
 
 .hamburger-menu.active .line:nth-child(2) {
     opacity: 0;
 }
 
-.hamburger-menu.active .line:nth-child(1) {
-    transform: translateY(11px) rotate(45deg);
-}
-
 .hamburger-menu.active .line:nth-child(3) {
-    transform: translateY(-11px) rotate(-45deg);
+    transform: translateY(-8px) rotate(-45deg);
 }
 
-/* Main Content Area */
-main {
-    max-width: 1200px;
-    margin: 20px auto;
-    padding: 20px;
-    background: var(--card-background); /* Pure white background for main content area */
-    border-radius: 15px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+/* Navigasi Pautan */
+.nav-links {
+    display: flex; /* Untuk meletakkan pautan secara baris pada desktop */
+    gap: 20px; /* Jarak antara pautan */
 }
 
-/* Authentication Container (Login/Register Forms) */
-.auth-container {
-    background-color: var(--card-background); /* Pure white background for auth forms */
-    border-radius: 20px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    padding: 50px;
-    width: 100%;
-    max-width: 450px;
-    margin: 70px auto;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
+.nav-links li a {
+    color: var(--text-light);
+    font-size: 1.1rem;
+    padding: 5px 10px;
+    transition: color 0.3s ease;
+    white-space: nowrap; /* Elakkan pautan pecah baris */
 }
 
-.auth-container::before {
-    content: '';
-    position: absolute;
-    top: -20px;
-    left: -20px;
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(45deg, var(--primary-pastel-lavender), var(--secondary-pastel-lavender)); /* Pastel Lavender gradient */
-    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-    opacity: 0.7;
-    z-index: 0;
+.nav-links li a:hover {
+    color: var(--primary-pastel-lavender); /* Ubah warna pada hover */
+    background-color: rgba(255, 255, 255, 0.1); /* Latar belakang sedikit pada hover */
+    border-radius: 5px;
 }
 
-.auth-container::after {
-    content: '';
-    position: absolute;
-    bottom: -20px;
-    right: -20px;
-    width: 100px;
-    height: 100px;
-    background: linear-gradient(135deg, var(--secondary-pastel-lavender), var(--primary-pastel-lavender)); /* Pastel Lavender gradient */
-    border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%;
-    opacity: 0.6;
-    z-index: 0;
-}
+/* Media Queries untuk Responsif */
 
-.auth-container h2 {
-    font-family: 'Quicksand', sans-serif;
-    font-size: 2.5em;
-    color: var(--text-dark-neutral); /* MODIFIED: Soft deep purplish-grey for headings */
-    margin-bottom: 15px;
-    position: relative;
-    z-index: 1;
-}
-
-.auth-container p {
-    font-size: 1.1em;
-    color: var(--text-dark-neutral); /* MODIFIED: Soft deep purplish-grey for paragraph */
-    margin-bottom: 35px;
-    position: relative;
-    z-index: 1;
-}
-
-/* Form Group Styling */
-.form-group {
-    margin-bottom: 25px;
-    text-align: left;
-    width: 100%;
-    position: relative;
-    z-index: 1;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 10px;
-    font-weight: 600;
-    color: var(--text-dark-neutral); /* MODIFIED: Soft deep purplish-grey for label */
-}
-
-.form-control {
-    width: calc(100% - 24px);
-    padding: 14px 12px;
-    border: 1px solid var(--border-light); /* Very pale lavender-grey border */
-    border-radius: 10px;
-    font-size: 1.05rem;
-    box-sizing: border-box;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.form-control:focus {
-    border-color: var(--primary-pastel-lavender); /* Primary Pastel Lavender on focus */
-    outline: none;
-    box-shadow: 0 0 0 4px rgba(212, 201, 236, 0.5); /* Lighter lavender glow on focus */
-}
-
-.form-group.has-error .form-control {
-    border-color: #dc3545; /* Red for errors */
-}
-
-/* MODIFIED: help-block for forms */
-.help-block {
-    color: #dc3545; /* Red for error messages */
-    font-size: 0.9rem;
-    margin-top: 8px;
-    display: block;
-    text-align: left;
-}
-
-/* Buttons (General Styles) */
-.btn {
-    display: inline-block;
-    padding: 16px 25px;
-    font-size: 1.2em;
-    font-weight: 600;
-    border-radius: 12px;
-    cursor: pointer;
-    text-decoration: none;
-    text-align: center;
-    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-    box-sizing: border-box;
-    background-color: var(--primary-pastel-lavender); /* Solid Primary Pastel Lavender */
-    border: none;
-    box-shadow: 0 4px 10px rgba(212, 201, 236, 0.6); /* Lighter lavender shadow */
-    color: var(--text-dark-neutral); /* MODIFIED: Dark text for buttons */
-}
-
-.btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 15px rgba(212, 201, 236, 0.7); /* Enhanced shadow on hover */
-    background-color: var(--secondary-pastel-lavender); /* Deeper pastel lavender on hover */
-}
-
-.btn:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 5px rgba(212, 201, 236, 0.4);
-}
-
-.btn-primary {
-    background-color: var(--primary-pastel-lavender); /* Solid Primary Pastel Lavender for primary button */
-    color: var(--text-dark-neutral); /* Dark text for primary buttons */
-    border: none;
-    width: 100%;
-    margin-top: 30px;
-    margin-bottom: 25px;
-    box-shadow: 0 6px 15px rgba(212, 201, 236, 0.7); /* Stronger lavender shadow */
-}
-
-.btn-primary:hover {
-    background-color: var(--secondary-pastel-lavender); /* Deeper pastel lavender on hover */
-    box-shadow: 0 8px 20px rgba(212, 201, 236, 0.8);
-}
-
-/* MODIFIED: btn-google with !important for forceful override */
-.auth-container .btn-google {
-    background-color: var(--card-background) !important; /* Pure white background */
-    color: var(--text-dark-neutral) !important; /* Dark text for better contrast */
-    border: 1px solid var(--border-light) !important; /* Light cool grey-purple border */
-    padding: 15px 20px;
-    font-size: 1.1em;
-    width: 100%;
-    margin-top: 20px;
-    box-sizing: border-box;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 12px;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-}
-
-.auth-container .btn-google:hover {
-    background-color: #F8F8F8 !important; /* Very subtle white change on hover */
-    border-color: var(--primary-pastel-lavender) !important; /* Primary Pastel Lavender border on hover */
-    transform: translateY(-2px);
-    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
-}
-
-.auth-container .btn-google .fab.fa-google {
-    color: #eb4335 !important; /* Standard Google red for icon */
-    margin-right: 12px;
-    font-size: 1.3em;
-}
-
-/* Links */
-.auth-container p a {
-    color: var(--primary-pastel-lavender); /* Primary Pastel Lavender for links */
-    text-decoration: none;
-    font-weight: bold;
-}
-
-.auth-container p a:hover {
-    text-decoration: underline;
-    color: var(--secondary-pastel-lavender); /* Deeper Pastel Lavender on hover */
-}
-
-/* Success Message */
-.success-message {
-    background-color: var(--light-background); /* Soft purple background */
-    color: var(--text-dark-neutral); /* Soft deep purplish-grey text */
-    padding: 15px 20px;
-    border: 1px solid var(--border-light); /* Light cool grey-purple border */
-    border-radius: 10px;
-    margin-bottom: 25px;
-    text-align: center;
-    font-weight: 500;
-}
-
-/* Footer */
-footer {
-    text-align: center;
-    padding: 25px;
-    margin-top: 50px;
-    background-color: var(--header-vibrant-pastel); /* MODIFIED: Vibrant pastel lilac for footer (consistent with header) */
-    color: #fff; /* MODIFIED: White text for footer */
-    border-top-left-radius: 15px;
-    border-top-right-radius: 15px;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
-}
-
-/* Responsive Design */
+/* Mobile & Tablet Styles (Max-width 768px) */
 @media (max-width: 768px) {
     nav {
-        flex-direction: column;
+        padding: 0 15px; /* Kurangkan padding sisi */
+    }
+
+    .hamburger-menu {
+        display: flex; /* Tunjukkan hamburger pada mobile */
     }
 
     .nav-links {
-        margin-top: 15px;
-        flex-direction: column;
-        align-items: center;
+        /* Susun atur menu mobile apabila hamburger diklik */
+        position: absolute; /* Posisi mutlak untuk overlay */
+        top: 60px; /* Bawah header */
+        left: 0;
+        width: 100%;
+        max-width: 250px; /* Lebar menu overlay */
+        background-color: var(--header-vibrant-pastel);
+        flex-direction: column; /* Pautan dalam lajur */
+        padding: 20px;
+        box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
+        z-index: 999;
+        display: none; /* Sembunyi secara lalai, akan ditunjukkan oleh JS */
+        height: calc(100vh - 60px); /* Ketinggian penuh skrin tolak header */
+        overflow-y: auto; /* Boleh discroll jika banyak pautan */
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+    }
+
+    .nav-links.active {
+        display: flex; /* Ditunjukkan apabila kelas 'active' ditambah oleh JS */
     }
 
     .nav-links li {
-        margin: 8px 0;
+        margin: 10px 0;
+        text-align: left;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* Pemisah antara pautan */
+        padding-bottom: 5px;
+    }
+
+    .nav-links li:last-child {
+        border-bottom: none; /* Tiada pemisah untuk pautan terakhir */
+    }
+
+    .nav-links li a {
+        display: block; /* Pautan mengambil seluruh lebar */
+        padding: 10px 0;
+        font-size: 1.2rem;
+    }
+}
+
+/* --- Content Styling (Tambahan, untuk contoh) --- */
+.container {
+    max-width: 960px;
+    margin: 80px auto 20px auto; /* Margin atas untuk ruang dari header fixed */
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h2, h3, h4 {
+    color: var(--header-vibrant-pastel);
+    margin-bottom: 15px;
+}
+
+.profile-header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--primary-pastel-lavender);
+    margin-bottom: 15px;
+}
+
+.profile-details p, .profile-actions p {
+    margin-bottom: 10px;
+}
+
+.btn {
+    display: inline-block;
+    background-color: var(--primary-pastel-lavender);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-align: center;
+    transition: background-color 0.3s ease;
+    border: none;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.btn:hover {
+    background-color: #9287c2; /* Sedikit lebih gelap dari lavender */
+}
+
+.btn-secondary {
+    background-color: var(--secondary-pastel-blue);
+}
+
+.btn-secondary:hover {
+    background-color: #8ac0bd;
+}
+
+/* Error/Warning Messages */
+.error {
+    color: red;
+    background-color: #ffe0e0;
+    border: 1px solid red;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+}
+.warning { /* Untuk deprecated warnings */
+    color: orange;
+    background-color: #fff8e0;
+    border: 1px solid orange;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+}
+
+/* Footer Styles */
+footer {
+    background-color: var(--header-vibrant-pastel);
+    color: var(--text-light);
+    text-align: center;
+    padding: 1.5rem 0;
+    margin-top: 30px;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive Design */
+/* Penyesuaian untuk skrin yang lebih besar (Desktop View) */
+@media (min-width: 769px) { /* Pastikan breakpoint ini sama dengan JavaScript anda (768px) */
+    .hamburger-menu {
+        display: none; /* SEMBUNYIKAN hamburger pada skrin besar */
+    }
+    .nav-links {
+        display: flex; /* This is key for desktop */
+        position: static;
+        box-shadow: none;
+        background-color: transparent;
+        max-width: none;
+        flex-direction: row;
+        border-radius: 0;
+        margin: 0;
+        align-items: center;
+        gap: 20px;
+    }
+    .nav-links li {
+        text-align: left; /* Biar tetap left-aligned untuk desktop (lebih bersih) */
+        border-bottom: none; /* Buang garisan pemisah pada skrin besar */
+        padding: 0; /* Buang padding pada li */
+    }
+    .nav-links a {
+        padding: 0; /* Buang padding untuk pautan individu */
+        font-size: 1.1rem; /* Saiz font yang lebih besar untuk pautan */
+        color: #fff; /* Pastikan warna pautan putih pada desktop */
+        white-space: nowrap; /* Penting: Elak pautan pecah baris */
+    }
+    .nav-links a:hover {
+        background-color: transparent; /* Buang latar belakang hover pada skrin besar */
+        color: var(--primary-pastel-lavender); /* Warna hover untuk pautan pada skrin besar */
+    }
+    .nav-links a::after {
+        /* Kembalikan hover underline untuk desktop */
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 3px;
+        background-color: var(--primary-pastel-lavender);
+        transition: width 0.3s ease;
+        border-radius: 5px;
+    }
+    .nav-links a:hover::after,
+    .nav-links a.active::after {
+        width: 70%;
+    }
+}
+
+@media (max-width: 768px) { /* Mobile-specific adjustments */
+    nav {
+        /* Untuk mobile, nav perlu flex-direction column jika menu terbuka */
+        flex-direction: row; /* Kembali ke baris apabila menu ditutup, atau jika hamburger tidak aktif */
+        /* margin-top: 0; */
+    }
+
+    /* .nav-links rules for mobile are already defined above (display:none etc.) */
+    .nav-links {
+        max-width: 100%; /* Untuk mobile, menu dropdown boleh ambil lebar penuh jika perlu */
+        padding: 10px 0; /* Sesuaikan padding mobile menu */
+    }
+
+    .nav-links li {
+        padding: 10px 20px; /* Padding untuk setiap item dalam menu mobile */
+        text-align: center; /* Pusat teks dalam menu mobile */
+    }
+
+    .nav-links a {
+        padding: 0; /* Reset padding pada a untuk mobile, padding di li */
     }
 
     .auth-container {
@@ -422,6 +366,74 @@ footer {
     .auth-container::after {
         width: 60px;
         height: 60px;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-container {
+        margin: 40px auto;
+        padding: 25px;
+        border-radius: 12px;
+    }
+
+    .auth-container h2 {
+        font-size: 2em;
+    }
+
+    .auth-container p {
+        font-size: 1em;
+    }
+
+    /* Table-specific responsive adjustments */
+    .notes-table,
+    .user-management-table {
+        min-width: unset;
+        font-size: 0.9em;
+    }
+
+    .notes-table th,
+    .notes-table td,
+    .user-management-table th,
+    .user-management-table td {
+        padding: 10px 12px;
+    }
+
+    .notes-table th,
+    .user-management-table th {
+        position: static;
+        border-radius: 10px 10px 0 0;
+    }
+
+    .notes-table td .btn,
+    .user-management-table td .btn {
+        font-size: 0.8em;
+        padding: 6px 10px;
+        margin-right: 5px;
+        display: block;
+        margin-bottom: 8px;
+        width: auto;
+    }
+
+    .notes-table td .btn:last-child,
+    .user-management-table td .btn:last-child {
+        margin-right: 0;
+    }
+
+    /* Notes Grid and Dashboard responsive rules */
+    .notes-grid {
+        grid-template-columns: 1fr;
+        padding: 20px 10px;
+    }
+
+    .note-card {
+        padding: 20px;
+        border-radius: 12px;
+    }
+
+    .dashboard-container {
+        padding: 25px;
+        margin: 25px auto;
+        border-radius: 12px;
     }
 }
 
@@ -479,13 +491,14 @@ form label {
     color: var(--text-dark-neutral); /* Soft deep purplish-grey text */
 }
 
+/* Base style for form controls */
 form input[type="text"],
 form input[type="password"],
 form input[type="email"],
 form input[type="number"],
 form textarea,
 form select {
-    width: 100%;
+    width: 100%; /* Default to full width for general form controls */
     padding: 14px 15px;
     margin-bottom: 8px;
     border: 1px solid var(--border-light); /* Very pale lavender-grey border */
@@ -504,6 +517,14 @@ form select:focus {
     border-color: var(--primary-pastel-lavender); /* Primary Pastel Lavender on focus */
     outline: none;
     box-shadow: 0 0 0 4px rgba(212, 201, 236, 0.5); /* Lighter lavender glow on focus */
+}
+
+/* Specific styling for the numerical/smaller text fields */
+/* This will override the 100% width for inputs with 'form-control-sm' class */
+.form-control.form-control-sm {
+    max-width: 150px; /* Example: Set a fixed maximum width for these smaller inputs */
+    display: inline-block; /* Allows them to sit side-by-side in a flex container if needed */
+    vertical-align: middle; /* Align nicely with labels */
 }
 
 .form-group .help-block {
@@ -678,6 +699,8 @@ form select:focus {
     font-size: 1.6em;
     margin-top: 0;
     margin-bottom: 12px;
+    border-bottom: none; /* Ensure no border for h4 in note-card */
+    padding-bottom: 0; /* Ensure no padding for h4 in note-card */
 }
 
 .note-card .description {
@@ -713,358 +736,150 @@ form select:focus {
     box-shadow: 0 4px 10px rgba(212, 201, 236, 0.6);
 }
 
-/* SAMPAI SINI */
-
 .note-card .no-file {
-    color: var(--error-red);
-    /* Keeping red for error clarity */
+    color: #dc3545; /* Standard red for error/no file */
     font-size: 0.95em;
-    /* MODIFIED: Slightly larger font */
     font-style: italic;
 }
 
 /* Dashboard Specific Container (Existing, keeping as is) */
 .dashboard-container {
     background-color: #ffffff;
-    /* MODIFIED: White background */
     padding: 40px;
-    /* MODIFIED: More padding */
     border-radius: 15px;
-    /* MODIFIED: More rounded */
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-    /* MODIFIED: Stronger shadow */
     max-width: 1200px;
     margin: 40px auto;
-    /* MODIFIED: More margin */
 }
 
 .dashboard-container h2 {
-    color: var(--primary-sepia);
-    /* MODIFIED: Deep sepia for dashboard headings */
+    color: var(--text-dark-neutral); /* Using existing text variable */
     font-family: 'Quicksand', sans-serif;
-    /* MODIFIED: Fun font for headings */
     font-size: 2.2em;
-    /* MODIFIED: Larger font */
     margin-bottom: 15px;
-    /* MODIFIED: More space */
 }
 
 .dashboard-container p {
-    color: #555;
-    /* Keeping neutral gray */
+    color: var(--text-dark-neutral); /* Using existing text variable */
     line-height: 1.7;
-    /* MODIFIED: More line height */
     font-size: 1.05em;
-    /* MODIFIED: Slightly larger font */
 }
 
 .dashboard-container hr {
     border: 0;
     height: 1px;
-    background: var(--very-light-sepia-bg);
-    /* MODIFIED: Light sepia line */
+    background: var(--border-light); /* Using existing border variable */
     margin: 30px 0;
-    /* MODIFIED: More space */
 }
 
 /* Specific button styles (Existing, adjusted to use variables) */
 .btn-success {
-    background-color: var(--primary-sepia);
-    /* MODIFIED: Deep sepia for success */
-    color: white;
+    background-color: var(--primary-pastel-lavender); /* Consistent with theme */
+    color: var(--text-dark-neutral); /* Consistent with theme */
     padding: 12px 20px;
-    /* MODIFIED: Larger padding */
     border: none;
     border-radius: 10px;
-    /* MODIFIED: More rounded */
     text-decoration: none;
     display: inline-block;
     cursor: pointer;
     transition: background-color 0.2s ease, transform 0.2s ease;
     align-self: flex-start;
-    background-image: linear-gradient(to right, var(--primary-sepia), var(--secondary-sepia));
-    /* MODIFIED: Sepia gradient */
-    box-shadow: 0 4px 10px rgba(112, 66, 20, 0.3);
-    /* MODIFIED: Sepia shadow */
+    box-shadow: 0 4px 10px rgba(212, 201, 236, 0.6); /* Consistent with theme */
 }
 
 .btn-success:hover {
-    background-image: linear-gradient(to right, var(--secondary-sepia), var(--primary-sepia));
-    /* MODIFIED: Reverse gradient on hover */
-    box-shadow: 0 6px 15px rgba(112, 66, 20, 0.4);
-    /* MODIFIED: Sepia shadow */
+    background-color: var(--secondary-pastel-lavender); /* Deeper pastel lavender on hover */
+    box-shadow: 0 6px 15px rgba(212, 201, 236, 0.7);
 }
 
 .purchased-note {
     font-size: 1.1em;
     font-weight: bold;
-    color: var(--primary-sepia);
-    /* MODIFIED: Deep sepia for purchased note */
+    color: var(--primary-pastel-lavender); /* Consistent with theme */
     padding: 10px 15px;
-    /* MODIFIED: More padding */
     border-radius: 10px;
-    /* MODIFIED: More rounded */
-    background-color: #fcfbf8;
-    /* MODIFIED: Very light sepia background */
+    background-color: var(--light-background); /* Consistent with theme */
     align-self: flex-start;
-    border: 1px solid var(--pale-sepia);
-    /* MODIFIED: Light sepia border */
-}
-
-/* Success Message (Existing, adjusted to use variables) */
-/* Note: This class name conflicts with the new '.message.success'.
-    The new .message.success will be more specific and take precedence.
-    It's generally better to use unique class names or combine them.
-    For now, I've kept both, but the new one will override for elements with both classes. */
-.success-message {
-    background-color: #fcfbf8;
-    /* MODIFIED: Very light sepia background */
-    color: var(--primary-sepia);
-    /* MODIFIED: Deep sepia text */
-    padding: 15px 20px;
-    /* MODIFIED: More padding */
-    border: 1px solid var(--pale-sepia);
-    /* MODIFIED: Light sepia border */
-    border-radius: 10px;
-    /* MODIFIED: More rounded */
-    margin-bottom: 25px;
-    /* MODIFIED: More margin */
-    text-align: center;
-    font-weight: 500;
+    border: 1px solid var(--border-light); /* Consistent with theme */
 }
 
 /* help-block (This was a duplicate. Removed the other conflicting one) */
 .help-block {
-    color: var(--error-red);
-    /* Red */
+    color: #dc3545; /* Red */
     font-size: 0.95em;
-    /* MODIFIED: Slightly larger font */
     margin-top: 8px;
-    /* MODIFIED: More margin */
     margin-bottom: 10px;
-}
-
-
-/* Responsive adjustments for smaller screens (Existing, adjusted where necessary) */
-@media (max-width: 480px) {
-
-    /* Existing responsive rules for nav, auth-container etc. */
-    nav {
-        flex-direction: column;
-    }
-
-    .nav-links {
-        margin-top: 15px;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .nav-links li {
-        margin: 8px 0;
-    }
-
-    .auth-container {
-        margin: 40px auto;
-        padding: 25px;
-        /* MODIFIED: Less padding on smallest screens */
-        border-radius: 12px;
-    }
-
-    .auth-container h2 {
-        font-size: 2em;
-        /* Smaller on very small screens */
-    }
-
-    .auth-container p {
-        font-size: 1em;
-    }
-
-    /* Table-specific responsive adjustments */
-    .notes-table,
-    .user-management-table {
-        min-width: unset;
-        font-size: 0.9em;
-    }
-
-    .notes-table th,
-    .notes-table td,
-    .user-management-table th,
-    .user-management-table td {
-        padding: 10px 12px;
-        /* MODIFIED: Less padding on small screens */
-    }
-
-    .notes-table th,
-    .user-management-table th {
-        position: static;
-        border-radius: 10px 10px 0 0;
-        /* Keep top rounded corners */
-    }
-
-    .notes-table td .btn,
-    .user-management-table td .btn {
-        font-size: 0.8em;
-        padding: 6px 10px;
-        margin-right: 5px;
-        display: block;
-        /* Stack buttons vertically if they don't fit */
-        margin-bottom: 8px;
-        /* MODIFIED: More space */
-        width: auto;
-    }
-
-    .notes-table td .btn:last-child,
-    .user-management-table td .btn:last-child {
-        margin-right: 0;
-    }
-
-    /* Notes Grid and Dashboard responsive rules */
-    .notes-grid {
-        grid-template-columns: 1fr;
-        padding: 20px 10px;
-        /* MODIFIED: Adjusted padding */
-    }
-
-    .note-card {
-        padding: 20px;
-        /* MODIFIED: Less padding */
-        border-radius: 12px;
-    }
-
-    .dashboard-container {
-        padding: 25px;
-        /* MODIFIED: Less padding */
-        margin: 25px auto;
-        border-radius: 12px;
-    }
-
-    /* Important: Remove old .file-upload-wrapper styling for responsive design if present */
-    /* .file-upload-wrapper { flex-direction: column; align-items: flex-start; gap: 8px; } */
-    /* .custom-file-upload { width: 100%; text-align: center; padding: 12px 15px; } */
-    /* The new .file-input-display-wrapper already has flex-wrap: wrap; */
 }
 
 
 /* Add this new rule or modify existing .header-logo rule in your style.css */
 .header-logo {
     height: 50px;
-    /* MODIFIED: Big logo for better fit within the expanded header */
     width: auto;
-    /* Maintain aspect ratio */
     vertical-align: middle;
     margin-right: 10px;
 }
 
 /* Existing form control styling (from previous suggestions) */
-.form-control {
-    border-color: var(--pale-sepia);
-    /* Light sepia border for input fields */
-    border-radius: 5px;
-    padding: 0.75rem;
-    width: 100%;
-    /* Ensure inputs take full width */
-    box-sizing: border-box;
-    /* Include padding/border in width calculation */
-}
+/* (NOTE: The `form input[type="text"]...` rule handles `form-control` implicitly for these types) */
 
-.form-control:focus {
-    border-color: var(--secondary-sepia);
-    /* Medium sepia on focus */
-    box-shadow: 0 0 0 0.2rem rgba(160, 112, 64, 0.25);
-    /* Sepia shadow on focus */
-}
 
 /* --- THE CRITICAL FILE INPUT STYLING (KEEP ONLY THIS SECTION) --- */
 
 /* Hide the actual file input */
 .form-control-file {
     display: none !important;
-    /* Force hide the default input */
 }
 
 /* The wrapper to align the button and text side-by-side */
 .file-input-display-wrapper {
     display: flex !important;
-    /* Force flexbox behavior */
     align-items: center !important;
-    /* Force vertical centering */
     gap: 10px !important;
-    /* Force spacing between elements */
     margin-bottom: 15px !important;
-    /* Force space below this group before the help text */
     width: auto !important;
-    /* Allow wrapper to size to its content */
     flex-wrap: nowrap !important;
-    /* Prevent wrapping, force content on one line */
     min-width: 0;
-    /* Ensures flex items can shrink below their content size if needed */
 }
 
 /* Styles for the "Choose File" button (the custom label) */
 .custom-file-label {
     display: inline-flex !important;
-    /* Use inline-flex for specific alignment benefits */
-    background-color: var(--secondary-sepia) !important;
-    /* Force sepia background */
+    background-color: var(--secondary-pastel-lavender) !important; /* Menggunakan warna tema */
     color: #fff !important;
-    /* Changed to white text to match theme */
     padding: 6px 12px !important;
-    /* Force smaller padding */
     border-radius: 8px !important;
-    /* Force rounded corners */
     cursor: pointer !important;
     font-size: 0.9rem !important;
-    /* Force smaller font */
     font-weight: 500 !important;
-    box-shadow: 0 2px 5px rgba(160, 112, 64, 0.2) !important;
-    /* Sepia shadow */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1) !important;
     border: none !important;
-    /* Force no border */
     flex-shrink: 0 !important;
-    /* Prevent it from shrinking too much */
     white-space: nowrap !important;
-    /* Keep button text on one line */
     height: auto !important;
-    /* Ensure height adjusts to content */
     line-height: normal !important;
-    /* Reset line height if needed */
     max-width: 150px !important;
-    /* Set a maximum width for the button */
     box-sizing: border-box !important;
-    /* Ensure padding is included in the width */
 }
 
 .custom-file-label:hover {
-    background-color: #906030 !important;
-    /* Force darker sepia on hover */
-    box-shadow: 0 4px 8px rgba(160, 112, 64, 0.3) !important;
-    /* Sepia shadow */
+    background-color: #9C8FCF !important; /* Warna hover yang sedikit lebih gelap */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15) !important;
 }
 
 /* Style for the text indicating "No file chosen" or selected file name */
 #file-name-display {
     display: inline-block !important;
-    /* Force inline-block behavior */
-    color: var(--medium-text) !important;
-    /* Force text color */
+    color: var(--text-dark-neutral) !important; /* Menggunakan warna tema */
     font-size: 0.9rem !important;
-    /* Force smaller font */
     white-space: nowrap !important;
-    /* Prevent text wrapping */
     overflow: hidden !important;
-    /* Hide overflowing text */
     text-overflow: ellipsis !important;
-    /* Add "..." for overflow */
     flex-grow: 1 !important;
-    /* Allow it to take available space */
     flex-shrink: 1 !important;
-    /* Allow it to shrink if necessary */
     min-width: 50px !important;
-    /* Ensure it has a minimum width, adjust if needed */
     max-width: calc(100% - 160px) !important;
-    /* Adjust max-width based on button width + gap */
     box-sizing: border-box !important;
-    /* Include padding/border in width calculation */
 }
 
 /* For the help text/small text below the input */
@@ -1093,9 +908,9 @@ form select:focus {
     /* Allow buttons to wrap to next line on smaller screens */
 }
 
+/* Changed secondary button color based on your latest snippet */
 .btn-secondary {
-    background-color: var(--primary-pastel-lavender);
-    /* MODIFIED: A muted gray/brown for secondary buttons */
+    background-color: var(--primary-pastel-lavender); /* Now using primary pastel lavender as per your latest CSS */
     color: #fff;
     border: none;
     width: 100%;
@@ -1105,8 +920,7 @@ form select:focus {
 }
 
 .btn-secondary:hover {
-    background-color: #8c8c8c;
-    /* MODIFIED: Darker muted gray/brown on hover */
+    background-color: #8c8c8c; /* Still a muted gray/brown for secondary hover as per your CSS */
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
@@ -1215,7 +1029,6 @@ h2 {
     flex-grow: 1;
     min-width: 200px;
     padding: 14px 15px;
-    /* MODIFIED: Increased border thickness */
     border: 5px solid var(--border-light); /* Changed from 1px to 2px */
     border-radius: 10px;
     font-size: 1.05rem;
@@ -1228,7 +1041,6 @@ h2 {
 .search-section input[type="text"]:focus {
     border-color: var(--primary-pastel-lavender);
     outline: none;
-    /* Optional: You might want to increase the box-shadow spread to match the thicker border if desired */
     box-shadow: 0 0 0 5px rgba(212, 201, 236, 0.5); /* Changed from 4px to 5px for a slightly larger glow */
 }
 
@@ -1293,36 +1105,6 @@ h2 {
     .search-section a.btn {
         width: 100%; /* Make buttons full width */
     }
-}
-
-/* Specific button styles for Search and Clear */
-.btn-search {
-    /* Custom class for search button - now vibrant pastel like the header */
-    background-color: var(--header-vibrant-pastel); /* MODIFIED: Using the vibrant pastel header color */
-    color: white; /* Text color for vibrancy */
-    border-radius: 12px;
-    border-color: burlywood; /* Remove any default border if present */
-    box-shadow: 0 4px 10px rgba(160, 138, 211, 0.5); /* MODIFIED: Shadow consistent with vibrant pastel */
-}
-
-.btn-search:hover {
-    background-color: #8C7BB7; /* MODIFIED: A slightly darker, more saturated version of the header color on hover */
-    box-shadow: 0 6px 15px rgba(160, 138, 211, 0.7); /* MODIFIED: Enhanced shadow on hover */
-    transform: translateY(-3px); /* Retain hover effect */
-}
-
-.btn-clear-search {
-    /* Custom class for clear search button - now soft and pastel */
-    background-color: #E2DFE8; /* MODIFIED: A very light, desaturated lavender-grey, consistent with pastels */
-    color: var(--text-dark-neutral); /* MODIFIED: Dark text for readability on light button */
-    border: none; /* Ensure no border */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); /* MODIFIED: Lighter, soft shadow */
-}
-
-.btn-clear-search:hover {
-    background-color: #D3CCD8; /* MODIFIED: Slightly darker version of the soft lavender-grey on hover */
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12); /* MODIFIED: Enhanced soft shadow on hover */
-    transform: translateY(-3px); /* Retain hover effect */
 }
 
 /* Ebook List Display */
@@ -1441,60 +1223,78 @@ h2 {
     gap: 5px; /* Space between text and icon */
     font-style: italic; /* Subtle emphasis for status */
     opacity: 0.9; /* Slightly muted for background context */
-    font-weight: 500; /* A bit bolder than normal text for emphasis */
 }
 
-.ebook-status i {
-    font-size: 1.1em; /* Adjust icon size relative to text */
-    color: var(--primary-pastel-lavender); /* Make icons subtly stand out */
+/* Add these to your style.css if you are not using Bootstrap for grid system */
+.form-row {
+    display: flex; /* Menggunakan flexbox untuk menyusun item dalam baris */
+    flex-wrap: wrap; /* Membenarkan item untuk turun ke baris baharu jika ruang tidak cukup */
+    gap: 20px; /* Jarak antara setiap medan dalam baris */
+    margin-bottom: 15px; /* Jarak di bawah setiap baris borang */
+    align-items: flex-end; /* Selaraskan item ke bahagian bawah, berguna untuk label */
 }
 
-/* --- Specific Button Styles for Actions --- */
-
-/* Add to Wishlist Button (Primary positive action) */
-.btn-add-wishlist {
-    background-color: var(--primary-pastel-lavender); /* Light pastel lavender */
-    color: var(--text-dark-neutral); /* Dark text on light button */
-    box-shadow: 0 3px 8px rgba(212, 201, 236, 0.4);
+.form-group {
+    flex: 1; /* Membenarkan kumpulan borang untuk membesar dan mengecut */
+    min-width: 200px; /* Lebar minimum untuk setiap kumpulan sebelum turun ke baris baharu */
+    box-sizing: border-box; /* Sertakan padding/border dalam lebar */
 }
 
-.btn-add-wishlist:hover {
-    background-color: var(--secondary-pastel-lavender); /* Slightly deeper pastel lavender on hover */
-    box-shadow: 0 4px 10px rgba(212, 201, 236, 0.6);
+/* Penyesuaian untuk lebar kolum tertentu berdasarkan col-md-* dalam PHP anda */
+.form-group.col-md-3 {
+    flex-basis: calc(25% - 20px); /* 25% lebar tolak gap, untuk 4 kolum */
+    max-width: calc(25% - 20px);
+    min-width: 150px; /* Lebar input terkecil */
 }
 
-/* Remove from Wishlist Button (Negative/Danger action) */
-.btn-remove-wishlist {
-    background-color: var(--danger-pastel-rose); /* Soft, muted pastel rose for removal */
-    color: var(--text-dark-neutral);
-    box-shadow: 0 3px 8px rgba(227, 201, 204, 0.4);
+.form-group.col-md-4 {
+    flex-basis: calc(33.33% - 20px); /* Kira-kira 33% lebar untuk 3 kolum */
+    max-width: calc(33.33% - 20px);
+    min-width: 200px;
 }
 
-.btn-remove-wishlist:hover {
-    background-color: #D3B9BC; /* Slightly darker pastel rose on hover */
-    box-shadow: 0 4px 10px rgba(227, 201, 204, 0.6);
+.form-group.col-md-5 {
+    flex-basis: calc(41.66% - 20px); /* Kira-kira 41% lebar (seperti 5/12) */
+    max-width: calc(41.66% - 20px);
+    min-width: 250px;
 }
 
-/* Mark as Read Button (Secondary positive action, completing an item) */
-.btn-mark-read {
-    background-color: var(--secondary-neutral-warm); /* Soft warm tan for "read" */
-    color: var(--text-dark-neutral);
-    box-shadow: 0 3px 8px rgba(214, 199, 167, 0.4);
+.form-group.col-md-6 {
+    flex-basis: calc(50% - 20px); /* 50% lebar untuk 2 kolum */
+    max-width: calc(50% - 20px);
+    min-width: 280px;
 }
 
-.btn-mark-read:hover {
-    background-color: #C1B497; /* Darker soft warm tan on hover */
-    box-shadow: 0 4px 10px rgba(214, 199, 167, 0.6);
+/* Pastikan label berada di atas input mereka dan mengambil lebar penuh dalam kumpulan mereka */
+.form-group label {
+    width: 100%;
+    margin-bottom: 5px; /* Kurangkan ruang selepas label */
+    display: block; /* Pastikan label mengambil baris sendiri */
 }
 
-/* Mark as Unread Button (Neutral/Undo action) */
-.btn-mark-unread {
-    background-color: var(--border-light); /* Very light lavender-grey for "unread" */
-    color: var(--text-dark-neutral);
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05); /* Very subtle shadow */
+/* Pelarasan input borang umum */
+form input[type="text"],
+form input[type="number"],
+form textarea,
+form select {
+    width: 100%; /* Jadikan input mengambil lebar penuh item flex mereka */
+    box-sizing: border-box; /* Sertakan padding dan border dalam jumlah lebar dan tinggi elemen */
+    /* Padding, border, font-size, dll. yang sedia ada sepatutnya baik */
 }
 
-.btn-mark-unread:hover {
-    background-color: #D3CCD8; /* Slightly darker light lavender-grey on hover */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); /* Enhanced subtle shadow */
+/* Pelarasan untuk skrin yang lebih kecil untuk menyusun medan borang secara menegak */
+@media (max-width: 768px) {
+    .form-row {
+        flex-direction: column; /* Susun item secara menegak */
+        gap: 15px; /* Sesuaikan gap untuk susunan menegak */
+    }
+    .form-group,
+    .form-group.col-md-3,
+    .form-group.col-md-4,
+    .form-group.col-md-5,
+    .form-group.col-md-6 {
+        flex-basis: auto; /* Reset flex-basis */
+        max-width: 100%; /* Jadikan ia mengambil lebar penuh pada skrin kecil */
+        min-width: unset; /* Buang kekangan min-width */
+    }
 }
