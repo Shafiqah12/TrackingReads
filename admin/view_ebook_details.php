@@ -74,35 +74,51 @@ require_once '../includes/header.php';
         <?php elseif ($ebook): ?>
             <div class="ebook-details-card">
                 <div class="ebook-image-container">
-                    <?php 
-                    $image_src_path = ''; // Path for the <img> tag (browser URL)
-                    $file_exists_on_server = false; // Flag to check if file exists on server
+                    <?php
+                    $image_web_path = ''; // Path for the <img> tag (URL)
+                    $image_server_path = ''; // Absolute path for file_exists() (server filesystem)
+                    $file_exists_on_server = false;
 
                     if (!empty($ebook['file_path'])) {
-                        $image_src_path = htmlspecialchars($ebook['file_path']); 
-                        
-                        // Construct the absolute path for PHP's file_exists() check
-                        // Convert all forward slashes to backslashes for Windows file system check
-                        // Use DIRECTORY_SEPARATOR for cross-platform compatibility
-                        $normalized_file_path = str_replace('/', DIRECTORY_SEPARATOR, str_replace('../', '', $ebook['file_path']));
-                        $absolute_file_path = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . 'TrackingReads' . DIRECTORY_SEPARATOR . $normalized_file_path;
-                        
+                        $db_file_path = $ebook['file_path'];
+
+                        // Normalize the database path to be relative to the TrackingReads root
+                        // Example: if DB has '/TrackingReads/ebooksimage/image.jpg'
+                        // or 'ebooksimage/image.jpg'
+                        // we want 'ebooksimage/image.jpg' for internal use.
+                        if (strpos($db_file_path, '/TrackingReads/') === 0) {
+                            $db_file_path = substr($db_file_path, strlen('/TrackingReads/'));
+                        } elseif (strpos($db_file_path, '../ebooksimage/') === 0) { // Handle paths like ../ebooksimage/
+                             $db_file_path = str_replace('../ebooksimage/', 'ebooksimage/', $db_file_path);
+                        }
+
+                        // Construct the server-side absolute path for file_exists()
+                        // __DIR__ is '.../TrackingReads/admin'
+                        // We need '.../TrackingReads/ebooksimage/'
+                        // So, go up one level from 'admin' (to 'TrackingReads'), then into 'ebooksimage'
+                        $image_server_path = realpath(__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . $db_file_path);
+
+                        // Construct the web-accessible URL path for the <img> src
+                        // Assuming your TrackingReads folder is directly under htdocs or www
+                        // and accessed via http://localhost/TrackingReads/
+                        $image_web_path = '/TrackingReads/' . $db_file_path;
+
+
                         // Check if the file actually exists on the server's file system
-                        if (file_exists($absolute_file_path)) {
+                        if ($image_server_path && file_exists($image_server_path) && is_file($image_server_path)) {
                             $file_exists_on_server = true;
                         } else {
-                            // Log the path PHP is checking if it fails, for further debugging
-                            error_log("File NOT found at (absolute): " . $absolute_file_path);
+                            error_log("Image not found on server for ebook ID " . $ebook['id'] . ". Checked path: " . ($image_server_path ?? 'NULL'));
                         }
                     }
                     ?>
-                    <?php if (!empty($image_src_path) && $file_exists_on_server): ?>
-                        <img src="<?= $image_src_path; ?>" alt="Ebook Image" class="ebook-detail-image">
+                    <?php if ($file_exists_on_server): ?>
+                        <img src="<?= htmlspecialchars($image_web_path); ?>" alt="Ebook Image" class="ebook-detail-image">
                     <?php else: ?>
                         <div class="no-image-placeholder">No Image Available</div>
                     <?php endif; ?>
                 </div>
-                
+
                 <div class="ebook-info-grid">
                     <div class="grid-label">ID</div>
                     <div class="grid-colon">:</div>
@@ -155,8 +171,7 @@ require_once '../includes/header.php';
                     <div class="grid-label">Created At</div>
                     <div class="grid-colon">:</div>
                     <div class="grid-value"><?= htmlspecialchars($ebook['created_at'] ?? 'N/A') ?></div>
-                </div> <!-- /ebook-info-grid -->
-                <h3 class="description-heading">Description:</h3>
+                </div> <h3 class="description-heading">Description:</h3>
                 <div class="ebook-description-box">
                     <?= nl2br(htmlspecialchars($ebook['description'] ?? 'No description provided.')) ?>
                 </div>
@@ -172,7 +187,7 @@ require_once '../includes/header.php';
     /* Styles for this specific page, placed here to ensure they apply */
     body, html {
         /* Remove any global text-align that might be centering things */
-        text-align: initial; 
+        text-align: initial;
     }
 
     .main-content-area {
@@ -200,7 +215,7 @@ require_once '../includes/header.php';
     p {
         /* This paragraph is the "Detailed information about the ebook." below the title.
            Keep it centered as per previous screenshots. */
-        text-align: center; 
+        text-align: center;
         margin-bottom: 20px;
         color: #666;
     }
@@ -216,7 +231,7 @@ require_once '../includes/header.php';
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         margin-top: 20px;
     }
-    
+
     .ebook-image-container {
         flex-shrink: 0;
         width: 100%;
@@ -253,7 +268,7 @@ require_once '../includes/header.php';
     .ebook-info-grid {
         display: grid;
         /* Three columns: label (auto-width), colon (fixed width), value (takes remaining space) */
-        grid-template-columns: max-content max-content 1fr; 
+        grid-template-columns: max-content max-content 1fr;
         gap: 8px 5px; /* Row gap, Column gap (reduced gap between colon and value) */
         width: 100%; /* Take full width of its parent */
         max-width: 600px; /* Max width for the info grid itself */
@@ -296,7 +311,7 @@ require_once '../includes/header.php';
         border: 1px solid #e0e0e0;
         border-radius: 5px;
         padding: 15px;
-        margin-top: 10px; 
+        margin-top: 10px;
         white-space: pre-wrap;
         word-wrap: break-word;
         color: #444;

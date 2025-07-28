@@ -1,14 +1,20 @@
 <?php
 // admin/process-change-password.php
-// This file handles the submission of the change password form.
+// This file handles the submission of the change password form for all authorized roles.
 
 session_start();
 
 // Include database connection
 require_once '../includes/db_connect.php'; // Adjust path as needed
 
-// Check if the user is NOT logged in or NOT an admin
-if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || (isset($_SESSION["user_role"]) && $_SESSION["user_role"] !== "admin")) {
+// Define allowed roles for this page.
+// Added 'user', 'clerk', 'manager' to the allowed roles.
+$allowedRoles = ['admin', 'manager', 'clerk', 'user']; // MODIFIED: Added more roles
+
+// Check if the user is NOT logged in, or if their role is NOT in the allowed roles.
+// Redirect to login if not authorized.
+if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || !in_array($_SESSION["user_role"], $allowedRoles)) { // MODIFIED: Changed condition
+    error_log("Access Denied: process-change-password.php - User not logged in or role not allowed. Role: " . ($_SESSION['user_role'] ?? 'N/A'));
     header("location: ../login.php");
     exit;
 }
@@ -21,7 +27,13 @@ $current_password_err = $new_password_err = $confirm_password_err = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Get user ID from session
-    $user_id = $_SESSION["user_id"];
+    $user_id = $_SESSION["user_id"] ?? null; // Use null coalescing to prevent undefined index notice
+    if (is_null($user_id)) {
+        $_SESSION['error_message'] = "User ID not found in session. Please log in again.";
+        header("location: change-password.php");
+        exit();
+    }
+    error_log("DEBUG: process-change-password.php - Processing POST for User ID: " . $user_id);
 
     // Validate current password
     if (empty(trim($_POST["current_password"]))) {
@@ -79,33 +91,60 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 if ($stmt_update->execute()) {
                                     // Password updated successfully
                                     $_SESSION['success_message'] = "Password updated successfully.";
-                                    header("location: admin-profile.php");
+
+                                    // Determine redirect location based on user role
+                                    $redirect_page = '';
+                                    switch ($_SESSION['user_role']) {
+                                        case 'admin':
+                                            $redirect_page = 'admin-profile.php';
+                                            break;
+                                        case 'manager':
+                                            $redirect_page = 'manager-profile.php'; // Assuming you have this
+                                            break;
+                                        case 'clerk':
+                                            $redirect_page = 'clerk-profile.php'; // Assuming you have this
+                                            break;
+                                        case 'user':
+                                            $redirect_page = 'user-profile.php'; // Assuming you have this
+                                            break;
+                                        default:
+                                            $redirect_page = '../dashboard.php'; // Fallback to a general dashboard
+                                            break;
+                                    }
+                                    header("location: " . $redirect_page); // MODIFIED: Dynamic redirect
                                     exit();
                                 } else {
                                     $_SESSION['error_message'] = "Error updating password: " . $stmt_update->error;
+                                    error_log("ERROR: process-change-password.php - Error updating password for User ID $user_id: " . $stmt_update->error);
                                 }
                                 $stmt_update->close();
                             } else {
                                 $_SESSION['error_message'] = "Database error: Could not prepare update statement.";
+                                error_log("ERROR: process-change-password.php - Failed to prepare update statement: " . $conn->error);
                             }
                         } else {
                             $_SESSION['error_message'] = "The current password you entered is not valid.";
+                            error_log("WARNING: process-change-password.php - Invalid current password for User ID $user_id.");
                         }
                     }
                 } else {
                     $_SESSION['error_message'] = "User not found.";
+                    error_log("WARNING: process-change-password.php - User ID $user_id not found in DB.");
                 }
             } else {
                 $_SESSION['error_message'] = "Error fetching user data: " . $stmt->error;
+                error_log("ERROR: process-change-password.php - Error executing select statement for User ID $user_id: " . $stmt->error);
             }
             $stmt->close();
         } else {
             $_SESSION['error_message'] = "Database error: Could not prepare select statement.";
+            error_log("ERROR: process-change-password.php - Failed to prepare select statement: " . $conn->error);
         }
     } else {
         // Collect all error messages for display
         $all_errors = array_filter([$current_password_err, $new_password_err, $confirm_password_err]);
         $_SESSION['error_message'] = implode("<br>", $all_errors);
+        error_log("WARNING: process-change-password.php - Validation errors: " . implode(" | ", $all_errors));
     }
 
     // Redirect back to the change password page if there were errors
@@ -114,10 +153,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 } else {
     // If accessed directly without POST request, redirect
-    header("location: admin-profile.php");
+    // Redirect based on role if possible, otherwise a default
+    if (isset($_SESSION['user_role'])) {
+        switch ($_SESSION['user_role']) {
+            case 'admin':
+                header("location: admin-profile.php");
+                break;
+            case 'manager':
+                header("location: manager-profile.php");
+                break;
+            case 'clerk':
+                header("location: clerk-profile.php");
+                break;
+            case 'user':
+                header("location: user-profile.php");
+                break;
+            default:
+                header("location: ../dashboard.php"); // Fallback
+                break;
+        }
+    } else {
+        header("location: ../login.php"); // Not logged in, go to login
+    }
     exit;
 }
 
 // Close connection (if not already closed by statement close or if an error occurred before reaching close)
-$conn->close();
+if (isset($conn) && $conn->ping()) {
+    $conn->close();
+}
 ?>

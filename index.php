@@ -12,40 +12,46 @@ require_once 'includes/db_connect.php'; // Laluan relatif ke index.php
 // Manager dan Clerk tidak dibenarkan di sini, mereka akan melihat data ebook melalui antaramuka lain.
 if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true || $_SESSION["user_role"] !== "user") {
     // Jika bukan 'user' atau tidak log masuk, arahkan ke halaman log masuk
-    header("location: login.php"); 
+    header("location: login.php");
     exit;
 }
-
-// ... (Rest of your existing index.php code below) ...
-// This includes the search functionality, ebook display, etc.
-
-// Example of how your existing index.php might continue:
 
 // Initialize variables for search and ebook results
 $search_query = '';
 $ebook_results = [];
+$sql_where_clause = '';
+$params = [];
+$param_types = '';
 
 // Process search form submission
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['search_query'])) {
     $search_query = filter_var(trim($_GET['search_query']), FILTER_UNSAFE_RAW);
 
     if (!empty($search_query)) {
-        // Prepare a search query (example, adjust according to your database schema)
-        $sql_search = "SELECT id, no, penulis, tajuk, description, file_path, muka_surat, perkataan, harga_rm, genre, bulan, tahun, penerbit FROM ebooks WHERE tajuk LIKE ? OR penulis LIKE ? OR penerbit LIKE ?";
-        if ($stmt_search = $conn->prepare($sql_search)) {
-            $param_search = "%" . $search_query . "%";
-            $stmt_search->bind_param("sss", $param_search, $param_search, $param_search);
-            $stmt_search->execute();
-            $result_search = $stmt_search->get_result();
-            while ($row = $result_search->fetch_assoc()) {
-                $ebook_results[] = $row;
-            }
-            $stmt_search->close();
-        } else {
-            // Handle database error
-            echo "Error preparing search statement: " . htmlspecialchars($conn->error);
-        }
+        $sql_where_clause = " WHERE tajuk LIKE ? OR penulis LIKE ? OR penerbit LIKE ?";
+        $param_search = "%" . $search_query . "%";
+        $params = [$param_search, $param_search, $param_search];
+        $param_types = "sss";
     }
+}
+
+// Prepare the SQL query to fetch ebooks
+$sql_fetch_ebooks = "SELECT id, no, penulis, tajuk, description, file_path, muka_surat, perkataan, harga_rm, genre, bulan, tahun, penerbit FROM ebooks" . $sql_where_clause;
+
+if ($stmt_fetch_ebooks = $conn->prepare($sql_fetch_ebooks)) {
+    if (!empty($params)) {
+        $stmt_fetch_ebooks->bind_param($param_types, ...$params);
+    }
+    $stmt_fetch_ebooks->execute();
+    $result_fetch_ebooks = $stmt_fetch_ebooks->get_result();
+    while ($row = $result_fetch_ebooks->fetch_assoc()) {
+        $ebook_results[] = $row;
+    }
+    $stmt_fetch_ebooks->close();
+} else {
+    // Handle database error
+    error_log("Error preparing ebook fetch statement: " . $conn->error);
+    echo "<p class='message error'>Error fetching ebooks. Please try again later.</p>";
 }
 
 // Include header (assuming you have a header.php)
@@ -69,16 +75,52 @@ require_once 'includes/header.php';
             <?php if (!empty($ebook_results)): ?>
                 <?php foreach ($ebook_results as $ebook): ?>
                     <div class="ebook-card">
-                        <?php if ($ebook['file_path']): ?>
-                            <img src="<?= htmlspecialchars($ebook['file_path']); ?>" alt="Ebook Image" class="ebook-image">
-                        <?php else: ?>
-                            <div class="ebook-image-placeholder">No Image</div>
-                        <?php endif; ?>
-                        <h4><?= htmlspecialchars($ebook['tajuk']); ?></h4>
-                        <p>Penulis: <?= htmlspecialchars($ebook['penulis']); ?></p>
-                        <p>Penerbit: <?= htmlspecialchars($ebook['penerbit']); ?></p>
-                        <button class="btn btn-secondary">Add to Wishlist <i class="fas fa-heart"></i></button>
-                        <button class="btn btn-secondary">Mark as Read <i class="fas fa-check-circle"></i></button>
+                        <?php
+                        // The 'file_path' in DB is like '/TrackingReads/ebooksimage/imagename.jpg'
+                        $image_src_for_browser = htmlspecialchars($ebook['file_path'] ?? '');
+                        $file_exists_on_server = false;
+                        $absolute_file_path = ''; // Initialize
+
+                        if (!empty($ebook['file_path'])) {
+                            // Trim leading slash from the database path for consistent concatenation
+                            // This ensures the path formed for file_exists() is correct.
+                            // Example: DOCUMENT_ROOT = D:\xampp\htdocs\
+                            // DB file_path = /TrackingReads/ebooksimage/image.jpg
+                            // Trimmed path = TrackingReads/ebooksimage/image.jpg
+                            // Combined: D:\xampp\htdocs\TrackingReads\ebooksimage\image.jpg (which is correct)
+                            $normalized_db_path = ltrim($ebook['file_path'], '/');
+                            $absolute_file_path = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $normalized_db_path);
+                            
+                            // Remove any potential double slashes that might arise from concatenation
+                            $absolute_file_path = str_replace(DIRECTORY_SEPARATOR . DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR, $absolute_file_path);
+
+                            // Check if the file physically exists on the server
+                            if (file_exists($absolute_file_path)) {
+                                $file_exists_on_server = true;
+                            } else {
+                                // For debugging: log paths that fail
+                                error_log("index.php: Image file not found at (file_exists failed): " . $absolute_file_path);
+                            }
+                        }
+                        ?>
+                        <?php
+                        if (!empty($image_src_for_browser) && $file_exists_on_server) {
+                            echo '<img src="' . $image_src_for_browser . '" alt="Ebook Cover" class="ebook-image">';
+                        } else {
+                            echo '<div class="ebook-image-placeholder">No Image Available</div>';
+                        }
+                        ?>
+                        <h4><?= htmlspecialchars($ebook['tajuk'] ?? 'N/A'); ?></h4>
+                        <p>Penulis: <?= htmlspecialchars($ebook['penulis'] ?? 'N/A'); ?></p>
+                        <p>Penerbit: <?= htmlspecialchars($ebook['penerbit'] ?? 'N/A'); ?></p>
+                        <p>Harga: RM<?= htmlspecialchars(number_format($ebook['harga_rm'] ?? 0, 2)); ?></p>
+                        
+                        <button class="btn btn-secondary add-to-wishlist-btn" data-ebook-id="<?= htmlspecialchars($ebook['id']); ?>">
+                            Add to Wishlist <i class="fas fa-heart"></i>
+                        </button>
+                        <button class="btn btn-secondary mark-as-read-btn" data-ebook-id="<?= htmlspecialchars($ebook['id']); ?>">
+                            Mark as Read <i class="fas fa-check-circle"></i>
+                        </button>
                     </div>
                 <?php endforeach; ?>
             <?php else: ?>
@@ -237,7 +279,110 @@ require_once 'includes/header.php';
         width: calc(100% - 10px); /* Adjust for margin */
         margin-top: 10px;
     }
+    /* Add success/info styles for buttons if you want visual feedback */
+    .btn-success {
+        background-color: #28a745; /* Green */
+        color: white;
+    }
+    .btn-info {
+        background-color: #17a2b8; /* Blue-green */
+        color: white;
+    }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Event listener for Add to Wishlist buttons
+        document.querySelectorAll('.add-to-wishlist-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const ebookId = this.dataset.ebookId; // Get ebook ID from data-attribute
+                if (!ebookId) {
+                    alert('Ebook ID not found!');
+                    return;
+                }
+                
+                this.disabled = true; // Disable button to prevent multiple clicks
+                const originalText = this.innerHTML;
+                this.innerHTML = 'Adding...'; // Change button text
+
+                fetch('process_ajax_wishlist.php', { // AJAX call to your PHP script
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `ebook_id=${ebookId}&action=add_wishlist` // Data to send
+                })
+                .then(response => response.json()) // Parse JSON response
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message); // Show success message
+                        this.innerHTML = 'Added! <i class="fas fa-check"></i>'; // Update button text/icon
+                        this.classList.remove('btn-secondary');
+                        this.classList.add('btn-success'); // Change button style
+                        this.disabled = true; // Keep disabled if successful
+                    } else {
+                        alert('Error: ' + data.message); // Show error message
+                        this.innerHTML = originalText; // Revert button text
+                        this.disabled = false; // Re-enable button
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred during the request.');
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+                });
+            });
+        });
+
+        // Event listener for Mark as Read buttons (similar logic)
+        document.querySelectorAll('.mark-as-read-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const ebookId = this.dataset.ebookId;
+                if (!ebookId) {
+                    alert('Ebook ID not found!');
+                    return;
+                }
+
+                this.disabled = true;
+                const originalText = this.innerHTML;
+                this.innerHTML = 'Marking...';
+
+                fetch('process_ajax_wishlist.php', { // AJAX call to your PHP script
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `ebook_id=${ebookId}&action=mark_read`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        this.innerHTML = 'Read! <i class="fas fa-check-circle"></i>';
+                        this.classList.remove('btn-secondary');
+                        this.classList.add('btn-info'); 
+                        this.disabled = true;
+                    } else {
+                        alert('Error: ' + data.message);
+                        this.innerHTML = originalText;
+                        this.classList.remove('btn-info'); // Revert info style if it was applied
+                        this.classList.add('btn-secondary'); // Revert to secondary
+                        this.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred during the request.');
+                    this.innerHTML = originalText;
+                    this.classList.remove('btn-info'); // Revert info style
+                    this.classList.add('btn-secondary'); // Revert to secondary
+                    this.disabled = false;
+                });
+            });
+        });
+    });
+</script>
 
 <?php
 // Tutup sambungan pangkalan data pada akhir skrip

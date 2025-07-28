@@ -88,7 +88,7 @@ require_once __DIR__ . '/includes/header.php';
 
     <div class="profile-actions">
         <a href="/TrackingReads/edit-profile.php" class="btn btn-primary">Edit Profile</a>
-        <a href="/TrackingReads/change-password.php" class="btn btn-warning">Change Password</a>
+        <a href="/TrackingReads/admin/change_password.php" class="btn btn-warning">Change Password</a>
     </div>
 </div>
 
